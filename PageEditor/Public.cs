@@ -115,9 +115,20 @@ namespace PageEditor
             RoundedCorner1,
         }
 
+        public enum FontSizeKind
+        {
+            Middle,
+            Small,
+            Large,
+        }
+
         /// <summary>種別</summary>
         [XmlAttribute]
         public BaloonKind Kind;
+
+        /// <summary>文字サイズ</summary>
+        [XmlAttribute]
+        public FontSizeKind FontSize;
 
         /// <summary>表示位置右上X</summary>
         [XmlAttribute]
@@ -154,6 +165,30 @@ namespace PageEditor
         {
             get { return ColorTranslator.ToHtml(BackColor); }
             set { BackColor = ColorTranslator.FromHtml(value); }
+        }
+
+        /// <summary>フォント</summary>
+        [XmlIgnore]
+        [IgnoreDataMember]
+        public Font Font 
+        {
+            get
+            {
+                // サイズに応じて何を返すか決める。
+                switch (FontSize)
+                {
+                    case FontSizeKind.Small:
+                        return ImageDraw.DefaultFontSmall;
+
+                    case FontSizeKind.Large:
+                        return ImageDraw.DefaultFontLarge;
+
+                    case FontSizeKind.Middle:
+                        return ImageDraw.DefaultFontNormal;
+                }
+
+                return ImageDraw.DefaultFontNormal;
+            }
         }
 
         /// <summary>

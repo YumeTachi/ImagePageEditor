@@ -41,10 +41,22 @@ namespace PageEditor
                     switch (speechBaloon.Kind)
                     {
                         case SpeechBaloon.BaloonKind.Box:
-                            radioButton1.Checked = true;
+                            shapeKind1.Checked = true;
                             break;
                         case SpeechBaloon.BaloonKind.RoundedCorner1:
-                            radioButton2.Checked = true;
+                            shapeKind2.Checked = true;
+                            break;
+                    }
+                    switch (speechBaloon.FontSize)
+                    {
+                        case SpeechBaloon.FontSizeKind.Small:
+                            sizeKind0.Checked = true;
+                            break;
+                        case SpeechBaloon.FontSizeKind.Middle:
+                            sizeKind1.Checked = true;
+                            break;
+                        case SpeechBaloon.FontSizeKind.Large:
+                            sizeKind2.Checked = true;
                             break;
                     }
 
@@ -59,8 +71,11 @@ namespace PageEditor
             SpeechBaloon speechBaloon = new SpeechBaloon();
             speechBaloon.ForeColor = pictureBox1.BackColor;
             speechBaloon.BackColor = pictureBox2.BackColor;
-            if (radioButton1.Checked) speechBaloon.Kind = SpeechBaloon.BaloonKind.Box;
-            if (radioButton2.Checked) speechBaloon.Kind = SpeechBaloon.BaloonKind.RoundedCorner1;
+            if (shapeKind1.Checked) speechBaloon.Kind = SpeechBaloon.BaloonKind.Box;
+            if (shapeKind2.Checked) speechBaloon.Kind = SpeechBaloon.BaloonKind.RoundedCorner1;
+            if (sizeKind0.Checked) speechBaloon.FontSize = SpeechBaloon.FontSizeKind.Small;
+            if (sizeKind1.Checked) speechBaloon.FontSize = SpeechBaloon.FontSizeKind.Middle;
+            if (sizeKind2.Checked) speechBaloon.FontSize = SpeechBaloon.FontSizeKind.Large;
             speechBaloon.Text = textBox1.Text;
 
             return speechBaloon;
@@ -104,12 +119,23 @@ namespace PageEditor
             }
         }
 
-        private void radioButton_Click(object sender, EventArgs e)
+        private void shapeRadioButton_Click(object sender, EventArgs e)
         {
             if (m_SpeechBaloon != null)
             {
-                if (radioButton1.Checked) m_SpeechBaloon.Kind = SpeechBaloon.BaloonKind.Box;
-                if (radioButton2.Checked) m_SpeechBaloon.Kind = SpeechBaloon.BaloonKind.RoundedCorner1;
+                if (shapeKind1.Checked) m_SpeechBaloon.Kind = SpeechBaloon.BaloonKind.Box;
+                if (shapeKind2.Checked) m_SpeechBaloon.Kind = SpeechBaloon.BaloonKind.RoundedCorner1;
+                timer1.Start();
+            }
+        }
+
+        private void sizeRadioButton_Click(object sender, EventArgs e)
+        {
+            if (m_SpeechBaloon != null)
+            {
+                if (sizeKind0.Checked) m_SpeechBaloon.FontSize = SpeechBaloon.FontSizeKind.Small;
+                if (sizeKind1.Checked) m_SpeechBaloon.FontSize = SpeechBaloon.FontSizeKind.Middle;
+                if (sizeKind2.Checked) m_SpeechBaloon.FontSize = SpeechBaloon.FontSizeKind.Large;
                 timer1.Start();
             }
         }
@@ -122,6 +148,9 @@ namespace PageEditor
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            // タイマー停止
+            timer1.Stop();
+
             MainForm.GetInstance().ImageUpdate();
         }
     }

@@ -9,7 +9,11 @@ namespace PageEditor
     static class ImageDraw
     {
         static Brush ClearBrush = null;
-        static Font DefaultText = new Font("源暎ラテゴ v2", 36);
+
+        static public Font DefaultFontSmall = new Font("源暎ラテゴ v2", 24);
+        static public Font DefaultFontNormal = new Font("源暎ラテゴ v2", 36);
+        static public Font DefaultFontLarge = new Font("源暎ラテゴ v2", 48);
+
         static StringFormat StringFormat = new StringFormat(StringFormatFlags.DirectionVertical | StringFormatFlags.DirectionRightToLeft);
         static Pen WakuPen = new Pen(Brushes.Black, 8.0f);
 
@@ -96,7 +100,7 @@ namespace PageEditor
 
                 foreach (SpeechBaloon speechBaloon in layerSpeechBaloon.SpeechBaloons)
                 {
-                    SizeF textSize = tg.MeasureString(speechBaloon.Text, DefaultText, new PointF(speechBaloon.X, speechBaloon.Y), StringFormat);
+                    SizeF textSize = tg.MeasureString(speechBaloon.Text, speechBaloon.Font, new PointF(speechBaloon.X, speechBaloon.Y), StringFormat);
 
                     // 実サイズ
                     speechBaloon.TextRect = new Rectangle(speechBaloon.X - (int)textSize.Width / 2,
@@ -151,9 +155,7 @@ namespace PageEditor
                     // DrawStringは左上の座標を指定する関数だが、縦書きRightToLeftを指定すると右上になるので位置を調整
                     PointF point = new PointF(speechBaloon.X + speechBaloon.TextRect.Width / 2, speechBaloon.Y - speechBaloon.TextRect.Height / 2);
 
-                    tg.FillRectangle(Brushes.Red, new RectangleF(point.X - 2, point.Y - 2, 5, 5));
-
-                    tg.DrawString(speechBaloon.Text, DefaultText, new SolidBrush(speechBaloon.ForeColor), point, StringFormat);
+                    tg.DrawString(speechBaloon.Text, speechBaloon.Font, new SolidBrush(speechBaloon.ForeColor), point, StringFormat);
                 }
             }
 
