@@ -14,9 +14,10 @@ namespace PageEditor
     {
         SpeechBaloon m_SpeechBaloon = null;
 
-        public TextEditer()
+        public TextEditer(string title)
         {
             InitializeComponent();
+            this.Text = title;
         }
 
         public void Set(SpeechBaloon speechBaloon = null)
@@ -76,7 +77,7 @@ namespace PageEditor
             if (sizeKind0.Checked) speechBaloon.FontSize = SpeechBaloon.FontSizeKind.Small;
             if (sizeKind1.Checked) speechBaloon.FontSize = SpeechBaloon.FontSizeKind.Middle;
             if (sizeKind2.Checked) speechBaloon.FontSize = SpeechBaloon.FontSizeKind.Large;
-            speechBaloon.Text = textBox1.Text;
+            speechBaloon.Text = textBox1.Text.Trim();
 
             return speechBaloon;
         }
@@ -114,7 +115,7 @@ namespace PageEditor
         {
             if (m_SpeechBaloon != null)
             {
-                m_SpeechBaloon.Text = textBox1.Text;
+                m_SpeechBaloon.Text = textBox1.Text.Trim();
                 timer1.Start();
             }
         }

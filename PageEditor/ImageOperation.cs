@@ -161,7 +161,7 @@ namespace PageEditor
                                 CloseTextEditor();
 
                                 // テキストエディタの表示
-                                m_TextEditor = new TextEditer();
+                                m_TextEditor = new TextEditer("編集");
                                 if (m_TextEditorLocation != Point.Empty)
                                     m_TextEditor.Location = m_TextEditorLocation;
                                 m_TextEditor.Set(speechBaloon);
@@ -172,7 +172,7 @@ namespace PageEditor
                             else
                             {
                                 // 新規作成
-                                TextEditer editer = new TextEditer();
+                                TextEditer editer = new TextEditer("新規作成");
                                 if (editer.ShowDialog() == DialogResult.OK)
                                 {
                                     LayerSpeechBaloon layerSpeechBaloon = layer as LayerSpeechBaloon;
@@ -200,6 +200,14 @@ namespace PageEditor
 
                                 // ここでは変化しないのでfalse応答
                                 return false;
+                            }
+                            else
+                            {
+                                LayerSpeechBaloon layerSpeechBaloon = layer as LayerSpeechBaloon;
+
+                                ContextMenuStrip c = new ContextMenuStrip();
+                                c.Items.Add(new ToolStripMenuItem("一括追加", null, AddSum_Click) { Tag = new object[] { layerSpeechBaloon, document.Width, document.Height } });
+                                c.Show(Cursor.Position);
                             }
                         }
 
@@ -344,5 +352,53 @@ namespace PageEditor
             // 描画更新
             MainForm.GetInstance().ImageUpdate();
         }
+
+        /// <summary>
+        /// 一括追加
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void AddSum_Click(object sender, EventArgs e)
+        {
+            // 新規作成
+            TextEditer editer = new TextEditer("新規作成：一括追加");
+            if (editer.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            // 引数の受け取り
+            ToolStripMenuItem toolStripMenuItem = sender as ToolStripMenuItem;
+
+            object[] args = toolStripMenuItem.Tag as object[];
+
+            LayerSpeechBaloon layerSpeechBaloon = args[0] as LayerSpeechBaloon;
+            int width = (int)args[1];
+            int height = (int)args[2];
+
+
+            // 結果の受け取り
+            SpeechBaloon baseSpeechBaloon = editer.CreateSpeechBaloon();
+
+            // 分割
+            string[] rs = baseSpeechBaloon.Text.Replace("\r\n", "\n").Replace('\r', '\n').Replace("\n\n", "\r").Split(new char[] { '\r' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // 分割されたデータごとに処理
+            for (int i = 0; i < rs.Length; i++)
+            {
+                // Cloneの生成
+                SpeechBaloon speechBaloon = new SpeechBaloon(baseSpeechBaloon);
+                speechBaloon.Text = rs[i].Trim();
+
+                speechBaloon.X = width * (rs.Length - i) / (rs.Length + 1);
+                speechBaloon.Y = height / 2;
+
+                layerSpeechBaloon.SpeechBaloons.Add(speechBaloon);
+            }
+
+            // 描画更新
+            MainForm.GetInstance().ImageUpdate();
+        }
+
     }
 }

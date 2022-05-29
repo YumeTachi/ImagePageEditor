@@ -208,10 +208,25 @@ namespace PageEditor
         public SpeechBaloon()
         {
             Kind = BaloonKind.RoundedCorner1;
+            FontSize = FontSizeKind.Middle;
             Text = "";
             ForeColor = Color.DarkGray;
             BackColor = Color.White;
         }
+
+        public SpeechBaloon(SpeechBaloon arg)
+        {
+            Kind       = arg.Kind;
+            FontSize   = arg.FontSize;
+            X          = arg.X;
+            Y          = arg.Y;
+            Text       = arg.Text.Clone() as string;
+            ForeColor  = arg.ForeColor;
+            BackColor  = arg.BackColor;
+            TextRect   = arg.TextRect;
+            SelectRect = arg.SelectRect;
+        }
+
     }
 
     [Serializable]
