@@ -1,0 +1,5 @@
+●ソフトウェアライセンス
+
+Copyright (c) 2016 DOBON! <http://dobon.net>
+Released under the MIT license
+https://dobon.net/license/index.html#mit
