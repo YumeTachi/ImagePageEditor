@@ -59,7 +59,7 @@ namespace PageEditor
 
             // レイヤの文字列
             Rectangle box = new Rectangle(60, e.Bounds.Top, 100, e.Bounds.Height - 2);
-            e.Graphics.DrawString(layer.LayerType(), e.Font, Brushes.White, box, new StringFormat() { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
+            e.Graphics.DrawString(layer.LayerType(), e.Font, Brushes.White, box, new StringFormat(StringFormatFlags.NoWrap) { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
         }
 
         /// <summary>

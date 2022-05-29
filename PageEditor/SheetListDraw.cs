@@ -59,7 +59,7 @@ namespace PageEditor
 
             // タイトル
             Rectangle box3 = new Rectangle(100, e.Bounds.Top, 100, e.Bounds.Height - 2);
-            e.Graphics.DrawString(sheet.Name, e.Font, Brushes.White, box3, new StringFormat() { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
+            e.Graphics.DrawString(sheet.Name, e.Font, Brushes.White, box3, new StringFormat(StringFormatFlags.NoWrap) { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
         }
 
     }

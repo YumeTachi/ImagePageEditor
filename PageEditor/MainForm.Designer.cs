@@ -41,10 +41,7 @@ namespace PageEditor
             this.toolStripDropDownButton2 = new System.Windows.Forms.ToolStripDropDownButton();
             this.クリップボードにコピーToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.label2 = new System.Windows.Forms.Label();
             this.sheetListBox = new System.Windows.Forms.ListBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.layerListBox = new System.Windows.Forms.ListBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.sheetMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -60,15 +57,19 @@ namespace PageEditor
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.レイヤ削除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.sheetMenu.SuspendLayout();
             this.layerMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -101,31 +102,31 @@ namespace PageEditor
             // 新規作成ToolStripMenuItem
             // 
             this.新規作成ToolStripMenuItem.Name = "新規作成ToolStripMenuItem";
-            this.新規作成ToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.新規作成ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.新規作成ToolStripMenuItem.Text = "新規作成";
             this.新規作成ToolStripMenuItem.Click += new System.EventHandler(this.新規作成ToolStripMenuItem_Click);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(119, 6);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(177, 6);
             // 
             // 開くToolStripMenuItem
             // 
             this.開くToolStripMenuItem.Name = "開くToolStripMenuItem";
-            this.開くToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.開くToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.開くToolStripMenuItem.Text = "開く";
             this.開くToolStripMenuItem.Click += new System.EventHandler(this.開くToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(119, 6);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(177, 6);
             // 
             // 保存ToolStripMenuItem
             // 
             this.保存ToolStripMenuItem.Name = "保存ToolStripMenuItem";
-            this.保存ToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
+            this.保存ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.保存ToolStripMenuItem.Text = "保存";
             this.保存ToolStripMenuItem.Click += new System.EventHandler(this.保存ToolStripMenuItem_Click);
             // 
@@ -156,7 +157,7 @@ namespace PageEditor
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.tableLayoutPanel1);
+            this.splitContainer1.Panel1.Controls.Add(this.splitContainer2);
             // 
             // splitContainer1.Panel2
             // 
@@ -164,38 +165,8 @@ namespace PageEditor
             this.splitContainer1.Panel2.Controls.Add(this.pictureBox1);
             this.splitContainer1.Panel2.SizeChanged += new System.EventHandler(this.splitContainer1_Panel2_SizeChanged);
             this.splitContainer1.Size = new System.Drawing.Size(1108, 545);
-            this.splitContainer1.SplitterDistance = 200;
+            this.splitContainer1.SplitterDistance = 260;
             this.splitContainer1.TabIndex = 2;
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.BackColor = System.Drawing.SystemColors.Control;
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.label2, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.sheetListBox, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.layerListBox, 0, 3);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(200, 545);
-            this.tableLayoutPanel1.TabIndex = 1;
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 280);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(39, 12);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "Layers";
             // 
             // sheetListBox
             // 
@@ -206,23 +177,13 @@ namespace PageEditor
             this.sheetListBox.FormattingEnabled = true;
             this.sheetListBox.IntegralHeight = false;
             this.sheetListBox.ItemHeight = 40;
-            this.sheetListBox.Location = new System.Drawing.Point(3, 23);
+            this.sheetListBox.Location = new System.Drawing.Point(0, 0);
             this.sheetListBox.Name = "sheetListBox";
-            this.sheetListBox.Size = new System.Drawing.Size(194, 246);
+            this.sheetListBox.Size = new System.Drawing.Size(260, 338);
             this.sheetListBox.TabIndex = 0;
             this.sheetListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.sheetListBox_DrawItem);
             this.sheetListBox.SelectedIndexChanged += new System.EventHandler(this.sheetListBox_SelectedIndexChanged);
             this.sheetListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.sheetListBox_MouseUp);
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 8);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(40, 12);
-            this.label1.TabIndex = 3;
-            this.label1.Text = "Sheets";
             // 
             // layerListBox
             // 
@@ -233,9 +194,9 @@ namespace PageEditor
             this.layerListBox.ForeColor = System.Drawing.Color.White;
             this.layerListBox.FormattingEnabled = true;
             this.layerListBox.ItemHeight = 40;
-            this.layerListBox.Location = new System.Drawing.Point(3, 295);
+            this.layerListBox.Location = new System.Drawing.Point(0, 0);
             this.layerListBox.Name = "layerListBox";
-            this.layerListBox.Size = new System.Drawing.Size(194, 247);
+            this.layerListBox.Size = new System.Drawing.Size(260, 203);
             this.layerListBox.TabIndex = 5;
             this.layerListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.layerListBox_DrawItem);
             this.layerListBox.SelectedIndexChanged += new System.EventHandler(this.layerListBox_SelectedIndexChanged);
@@ -244,7 +205,7 @@ namespace PageEditor
             // pictureBox1
             // 
             this.pictureBox1.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.pictureBox1.Location = new System.Drawing.Point(14, 54);
+            this.pictureBox1.Location = new System.Drawing.Point(14, 70);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(878, 423);
             this.pictureBox1.TabIndex = 0;
@@ -344,6 +305,25 @@ namespace PageEditor
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer2.Name = "splitContainer2";
+            this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.sheetListBox);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.layerListBox);
+            this.splitContainer2.Size = new System.Drawing.Size(260, 545);
+            this.splitContainer2.SplitterDistance = 338;
+            this.splitContainer2.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -360,11 +340,13 @@ namespace PageEditor
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.sheetMenu.ResumeLayout(false);
             this.layerMenu.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+            this.splitContainer2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -375,9 +357,6 @@ namespace PageEditor
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ListBox sheetListBox;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ContextMenuStrip sheetMenu;
         private System.Windows.Forms.ToolStripMenuItem 新規シートの作成ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
@@ -400,6 +379,7 @@ namespace PageEditor
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ToolStripMenuItem シート名の変更ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
+        private System.Windows.Forms.SplitContainer splitContainer2;
     }
 }
 
