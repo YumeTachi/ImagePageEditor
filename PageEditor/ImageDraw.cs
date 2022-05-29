@@ -46,8 +46,7 @@ namespace PageEditor
         {
             using (Graphics g = Graphics.FromImage(image))
             {
-                // 透明色描画
-                g.FillRectangle(ImageDraw.GetClearBrush(), new RectangleF(0, 0, image.Width, image.Height));
+                g.Clear(Color.FromArgb(0, 0, 0, 0));
 
                 if (layers != null)
                 {

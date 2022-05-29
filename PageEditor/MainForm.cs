@@ -246,6 +246,8 @@ namespace PageEditor
             // メインキャンバスに転送
             using (Graphics g = Graphics.FromImage(pictureBox1.Image))
             {
+                g.FillRectangle(ImageDraw.GetClearBrush(), new Rectangle(0, 0, pictureBox1.Image.Width, pictureBox1.Image.Height));
+
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 g.DrawImage(image, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
             }

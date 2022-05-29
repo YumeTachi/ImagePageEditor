@@ -47,13 +47,10 @@ namespace PageEditor
 
             // サムネイル
             Rectangle box2 = new Rectangle(44, e.Bounds.Top + (e.Bounds.Height - 2 - 28) / 2, 48, 28);
+            e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box2);
             if (sheet.Thumbnail != null)
             {
                 e.Graphics.DrawImage(sheet.Thumbnail, box2);
-            }
-            else
-            {
-                e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box2);
             }
             e.Graphics.DrawRectangle(Pens.Black, box2);
 
