@@ -313,9 +313,10 @@ namespace PageEditor
                 }
 
                 layerImage.FileName = relative;
-                layerImage.X = (document.Width - image.Width) / 2;
-                layerImage.Y = (document.Height - image.Height) / 2;
-
+                layerImage.X = document.Width / 2;
+                layerImage.Y = document.Height / 2;
+                layerImage.Angle = 0;
+                layerImage.Scale = Math.Min(document.Width / image.Width, document.Height / image.Height);
                 return true;
             }
 

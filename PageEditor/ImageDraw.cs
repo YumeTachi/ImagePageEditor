@@ -208,7 +208,28 @@ namespace PageEditor
             // 画像データがあれば描画する。
             if (image != null)
             {
-                g.DrawImage(image, new Rectangle(layer.X, layer.Y, image.Width, image.Height));
+                if (layer.Angle == 0)
+                {
+                    g.DrawImage(image, new RectangleF(layer.X - image.Width * layer.Scale / 2.0f, layer.Y - image.Height * layer.Scale / 2.0f, image.Width * layer.Scale, image.Height * layer.Scale));
+                }
+                else
+                {
+                    PointF p0 = new PointF(-image.Width / 2.0f * layer.Scale, -image.Height / 2.0f * layer.Scale);
+                    PointF p1 = new PointF(+image.Width / 2.0f * layer.Scale, -image.Height / 2.0f * layer.Scale);
+                    PointF p2 = new PointF(-image.Width / 2.0f * layer.Scale, +image.Height / 2.0f * layer.Scale);
+
+                    float cos = (float)Math.Cos(layer.Angle / 180.0 * Math.PI);
+                    float sin = (float)Math.Sin(layer.Angle / 180.0 * Math.PI);
+
+                    g.DrawImage(image, new PointF[] 
+                    {
+                        new PointF(p0.X * cos - p0.Y * sin + layer.X, p0.X * sin + p0.Y * cos + layer.Y),
+                        new PointF(p1.X * cos - p1.Y * sin + layer.X, p1.X * sin + p1.Y * cos + layer.Y),
+                        new PointF(p2.X * cos - p2.Y * sin + layer.X, p2.X * sin + p2.Y * cos + layer.Y),
+                    });
+                }
+
+
             }
         }
     }

@@ -307,7 +307,7 @@ namespace PageEditor
             document.CurrentSheet.Thumbnail = thumbnail;
 
             // 描画更新
-            sheetListBox.Refresh();
+            sheetListBox.Invalidate(sheetListBox.GetItemRectangle(sheetListBox.SelectedIndex));
         }
         #endregion
 
@@ -546,8 +546,6 @@ namespace PageEditor
                 return;
 
             document.CurrentSheet.Name = newName;
-
-            ApplySheet();
         }
 
         private void シート削除ToolStripMenuItem_Click(object sender, EventArgs e)

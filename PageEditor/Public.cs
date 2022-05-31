@@ -80,13 +80,19 @@ namespace PageEditor
         [XmlAttribute]
         public string FileName;
 
-        /// <summary>表示位置X</summary>
+        // 画像の表示位置中央X
         [XmlAttribute]
         public int X;
 
-        /// <summary>表示位置Y</summary>
+        // 画像の表示位置中央Y
         [XmlAttribute]
         public int Y;
+
+        [XmlAttribute]
+        public float Angle;
+
+        [XmlAttribute]
+        public float Scale;
 
         /// <summary>
         /// レイヤー種別を表す文字列の取得
@@ -103,6 +109,8 @@ namespace PageEditor
             FileName = null;
             X = 0;
             Y = 0;
+            Angle = 0;
+            Scale = 1;
         }
     }
 
