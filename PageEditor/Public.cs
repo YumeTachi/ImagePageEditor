@@ -112,6 +112,15 @@ namespace PageEditor
             Angle = 0;
             Scale = 1;
         }
+
+        internal void SetZoom(string relativeFileName, int documentWidth, int documentHeight, Image image)
+        {
+            FileName = relativeFileName;
+            X = documentWidth / 2;
+            Y = documentHeight / 2;
+            Angle = 0;
+            Scale = Math.Min((float)documentWidth / image.Width, (float)documentHeight / image.Height);
+        }
     }
 
     [Serializable]

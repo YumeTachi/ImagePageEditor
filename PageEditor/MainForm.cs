@@ -169,6 +169,74 @@ namespace PageEditor
             }
         }
 
+        //
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Control+V
+            if (e.KeyCode == Keys.V && e.Control)
+            {
+                // クリップボードの内容を適用する。
+
+                // 画像形式
+                if (Clipboard.ContainsImage())
+                {
+                    if (MainFile != null)
+                    {
+                        Image image = Clipboard.GetImage();
+                        using (System.IO.MemoryStream memoryStream = new System.IO.MemoryStream())
+                        {
+                            // メモリに書き込み
+                            image.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            byte[] data = memoryStream.ToArray();
+
+                            // ファイル名をMD5から生成
+                            System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create();
+                            byte[] bs = md5.ComputeHash(data);
+                            md5.Clear();
+                            string fullPath = GetSaveFileName(DataDirectory + BitConverter.ToString(bs).ToLower().Replace("-","") + ".jpg");
+
+                            System.IO.File.WriteAllBytes(fullPath, data);
+
+                            // PictureControlに追加しておく
+                            PictureControl.Add(fullPath, image);
+
+                            LayerImage layerImage = new LayerImage();
+
+                            // documentに追加
+                            document.CurrentSheet.Layers.Insert(document.CurrentSheet.SelectIndex + 1, layerImage);
+                            document.CurrentSheet.CurrentLayer = layerImage;
+
+                            layerImage.SetZoom(GetRelative(fullPath), document.Width, document.Height, image);
+
+                            using (new JLUILocker())
+                            {
+                                // 描画更新をいったん止めて要素を更新
+                                layerListBox.BeginUpdate();
+                                layerListBox.Items.Insert(layerListBox.SelectedIndex, layerImage);
+                                layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
+                                layerListBox.EndUpdate();
+                            }
+
+                            // 描画更新を明示的に呼び出す。
+                            splitContainer1_Panel2_SizeChanged(null, null);
+                        }
+                    }
+                }
+
+                e.Handled = true;
+            }
+        }
+
+        private string GetSaveFileName(string v)
+        {
+            while (System.IO.File.Exists(v) == true)
+            {
+                v = System.IO.Path.GetDirectoryName(v) + "\\" + System.IO.Path.GetFileNameWithoutExtension(v) + "_copy" + System.IO.Path.GetExtension(v);
+            }
+
+            return v;
+        }
 
         private void クリップボードにコピーToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -682,6 +750,24 @@ namespace PageEditor
         /// <param name="e"></param>
         private void layerListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (layerListBox.SelectedItem == null)
+                return;
+
+            switch (layerListBox.SelectedItem.GetType().Name)
+            {
+                case "LayerFill":
+                    helpLabel.Text = "tips:画面上左クリックで色選択ウィンドウが表示されます。";
+                    break;
+
+                case "LayerImage":
+                    helpLabel.Text = "tips:画面上左クリックでファイル選択ウィンドウが表示されます。";
+                    break;
+
+                case "LayerSpeechBaloon":
+                    helpLabel.Text = "tips:左クリックで新規作成、吹き出し左ドラッグで移動、吹き出し左クリックで編集、右クリックで一括追加用のメニューが表示されます。";
+                    break;
+            }
+
             if (JLUILocker.IsLocked())
                 return;
 
@@ -689,5 +775,6 @@ namespace PageEditor
         }
 
         #endregion
+
     }
 }

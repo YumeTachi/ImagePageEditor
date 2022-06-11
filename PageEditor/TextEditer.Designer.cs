@@ -219,9 +219,11 @@ namespace PageEditor
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
+            this.KeyPreview = true;
             this.Name = "TextEditer";
             this.Text = "TextEditer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TextEditer_FormClosing);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TextEditer_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.groupBox1.ResumeLayout(false);

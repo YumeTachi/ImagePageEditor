@@ -154,5 +154,11 @@ namespace PageEditor
 
             MainForm.GetInstance().ImageUpdate();
         }
+
+        private void TextEditer_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
+        }
     }
 }

@@ -109,5 +109,24 @@ namespace PageEditor
                 return null;
             }
         }
+
+        /// <summary>
+        /// すでにOpen済みの画像ファイルを追加します。クリップボードから用
+        /// </summary>
+        /// <param name="relativeFileName"></param>
+        /// <param name="image"></param>
+        internal static void Add(string fullPath, Image image)
+        {
+            DateTime dateTime = System.IO.File.GetLastWriteTime(fullPath);
+
+            // 画像を登録する
+            PictureInfo pi = new PictureInfo()
+            {
+                Picture = image,
+                Update = dateTime
+            };
+
+            PictureInfos.Add(fullPath, pi);
+        }
     }
 }
