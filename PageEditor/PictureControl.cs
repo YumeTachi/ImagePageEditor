@@ -13,6 +13,7 @@ namespace PageEditor
         class PictureInfo
         {
             public Image Picture;
+            public Image ThumbImage;
             public DateTime Update;
         }
 
@@ -27,6 +28,31 @@ namespace PageEditor
         /// <param name="fileName"></param>
         /// <returns></returns>
         public static Image Load(string relativeFileName)
+        {
+            PictureInfo pi = LoadInfo(relativeFileName);
+
+            if (pi == null)
+                return null;
+
+            return pi.Picture;
+        }
+
+        /// <summary>
+        /// サムネイルの取得
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        internal static Image GetThumbImage(string relativeFileName)
+        {
+            PictureInfo pi = LoadInfo(relativeFileName);
+
+            if (pi == null)
+                return null;
+
+            return pi.ThumbImage;
+        }
+
+        private static PictureInfo LoadInfo(string relativeFileName)
         {
             // 引数異常
             if (relativeFileName == null)
@@ -61,29 +87,29 @@ namespace PageEditor
                 if (pi.Update == dateTime)
                 {
                     // そのまま返す
-                    return pi.Picture;
+                    return pi;
                 }
 
                 // データ更新して詰めなおす。
                 pi.Update = dateTime;
                 pi.Picture = LoadPictureCore(fullPath);
+                pi.ThumbImage = pi.Picture.GetThumbnailImage(18, 18, delegate { return false; }, IntPtr.Zero);
 
                 PictureInfos[fullPath] = pi;
 
-                return pi.Picture;
+                return pi;
             }
             else
             {
                 // 画像を読み込んで登録する
-                PictureInfo pi = new PictureInfo()
-                {
-                    Picture = LoadPictureCore(fullPath),
-                    Update = dateTime
-                };
+                PictureInfo pi = new PictureInfo();
+                pi.Update = dateTime;
+                pi.Picture = LoadPictureCore(fullPath);
+                pi.ThumbImage = pi.Picture.GetThumbnailImage(18, 18, delegate { return false; }, IntPtr.Zero);
 
                 PictureInfos.Add(fullPath, pi);
 
-                return pi.Picture;
+                return pi;
             }
         }
 

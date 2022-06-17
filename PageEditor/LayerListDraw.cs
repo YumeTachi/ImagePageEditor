@@ -81,9 +81,12 @@ namespace PageEditor
         /// <param name="e"></param>
         private static void DrawLayerImage(LayerImage layer, DrawItemEventArgs e)
         {
-            // 塗りつぶしの枠だけ。
+            Image thumbImage = PictureControl.GetThumbImage(layer.FileName);
+
             Rectangle box = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 20) / 2, 18, 18);
             e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box);
+            if (thumbImage != null)
+                e.Graphics.DrawImage(thumbImage, box);
             e.Graphics.DrawRectangle(Pens.White, box);
         }
 
