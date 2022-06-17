@@ -673,22 +673,41 @@ namespace PageEditor
             LayerListDraw.Draw(layerListBox.Items[e.Index] as Layer, e);
         }
 
-        // レイヤーリストのMouseUp
-        private void layerListBox_MouseUp(object sender, MouseEventArgs e)
+        private void layerListBox_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
-            {
-                int index = layerListBox.IndexFromPoint(layerListBox.PointToClient(Control.MousePosition));
+            int index = layerListBox.IndexFromPoint(layerListBox.PointToClient(Control.MousePosition));
 
-                if (0 <= index && index < layerListBox.Items.Count)
+            if (0 <= index && index < layerListBox.Items.Count)
+            {
+                if (layerListBox.GetItemRectangle(index).Contains(e.Location))
                 {
-                    if (layerListBox.GetItemRectangle(index).Contains(e.Location))
+                    Layer toLayer = layerListBox.SelectedItem as Layer;
+
+                    if (e.Button == MouseButtons.Left && e.X < 29)
+                    {
+                        toLayer.Visible = !toLayer.Visible;
+
+                        // 表示更新
+                        layerListBox.Invalidate(layerListBox.GetItemRectangle(index));
+
+                        // 描画更新を明示的に呼び出す。
+                        splitContainer1_Panel2_SizeChanged(null, null);
+                    }
+
+                    if (toLayer != document.CurrentSheet.CurrentLayer)
                     {
                         layerListBox.SelectedIndex = index;
                         document.CurrentSheet.CurrentLayer = layerListBox.SelectedItem as Layer;
                     }
                 }
+            }
+        }
 
+        // レイヤーリストのMouseUp
+        private void layerListBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.X > 29)
+            {
                 レイヤ削除ToolStripMenuItem.Enabled = document.CurrentSheet.Layers.Count >= 2;
                 layerMenu.Show(System.Windows.Forms.Cursor.Position);
             }
@@ -775,6 +794,5 @@ namespace PageEditor
         }
 
         #endregion
-
     }
 }

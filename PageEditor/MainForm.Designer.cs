@@ -223,6 +223,7 @@ namespace PageEditor
             this.layerListBox.TabIndex = 5;
             this.layerListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.layerListBox_DrawItem);
             this.layerListBox.SelectedIndexChanged += new System.EventHandler(this.layerListBox_SelectedIndexChanged);
+            this.layerListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.layerListBox_MouseDown);
             this.layerListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.layerListBox_MouseUp);
             // 
             // pictureBox1

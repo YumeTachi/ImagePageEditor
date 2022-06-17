@@ -51,15 +51,20 @@ namespace PageEditor
             // 背景色
             e.DrawBackground();
 
-            // TODO:表示非表示状態
-            
+            // 表示非表示状態
+            if (layer.Visible)
+            {
+                Rectangle boxV = new Rectangle(0, e.Bounds.Top, 29, e.Bounds.Height - 2);
+                e.Graphics.DrawString("目", e.Font, Brushes.LightGray, boxV, new StringFormat(StringFormatFlags.NoWrap) { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            }
+
             // 枠線
             e.Graphics.DrawLine(GetLinePen(), 29, e.Bounds.Top, 29, e.Bounds.Bottom - 1);
             e.Graphics.DrawLine(GetLinePen(), 0, e.Bounds.Bottom - 1, e.Bounds.Width, e.Bounds.Bottom - 1);
 
             // レイヤの文字列
-            Rectangle box = new Rectangle(60, e.Bounds.Top, 100, e.Bounds.Height - 2);
-            e.Graphics.DrawString(layer.LayerType(), e.Font, Brushes.White, box, new StringFormat(StringFormatFlags.NoWrap) { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
+            Rectangle boxS = new Rectangle(60, e.Bounds.Top, 100, e.Bounds.Height - 2);
+            e.Graphics.DrawString(layer.LayerType(), e.Font, Brushes.White, boxS, new StringFormat(StringFormatFlags.NoWrap) { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
         }
 
         /// <summary>
