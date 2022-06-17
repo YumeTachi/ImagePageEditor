@@ -40,6 +40,9 @@ namespace PageEditor
                 case "LayerImage":
                     DrawLayerImage(layer as LayerImage, e);
                     break;
+                case "LayerImageList":
+                    DrawLayerImageList(layer as LayerImageList, e);
+                    break;
             }
         }
 
@@ -110,6 +113,25 @@ namespace PageEditor
             Rectangle baloon = new Rectangle(box.Left + 3, box.Top + 2, 12, 14);
             e.Graphics.FillEllipse(Brushes.White, baloon);
             e.Graphics.DrawEllipse(Pens.DarkGray, baloon);
+        }
+
+        /// <summary>
+        /// イメージバッファレイヤーを描画します。
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="e"></param>
+        private static void DrawLayerImageList(LayerImageList layer, DrawItemEventArgs e)
+        {
+            ImageItem info = layer.GetInfo();
+            Rectangle box = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 20) / 2, 18, 18);
+            e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box);
+            if (info != null)
+            {
+                Image thumbImage = PictureControl.GetThumbImage(info.FileName);
+                if (thumbImage != null)
+                    e.Graphics.DrawImage(thumbImage, box);
+            }
+            e.Graphics.DrawRectangle(Pens.White, box);
         }
     }
 }

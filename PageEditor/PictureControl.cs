@@ -93,7 +93,7 @@ namespace PageEditor
                 // データ更新して詰めなおす。
                 pi.Update = dateTime;
                 pi.Picture = LoadPictureCore(fullPath);
-                pi.ThumbImage = pi.Picture.GetThumbnailImage(18, 18, delegate { return false; }, IntPtr.Zero);
+                pi.ThumbImage = pi.Picture.GetThumbnailImage(50, 50, delegate { return false; }, IntPtr.Zero);
 
                 PictureInfos[fullPath] = pi;
 
@@ -105,7 +105,7 @@ namespace PageEditor
                 PictureInfo pi = new PictureInfo();
                 pi.Update = dateTime;
                 pi.Picture = LoadPictureCore(fullPath);
-                pi.ThumbImage = pi.Picture.GetThumbnailImage(18, 18, delegate { return false; }, IntPtr.Zero);
+                pi.ThumbImage = pi.Picture.GetThumbnailImage(50, 50, delegate { return false; }, IntPtr.Zero);
 
                 PictureInfos.Add(fullPath, pi);
 

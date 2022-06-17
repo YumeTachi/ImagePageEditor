@@ -14,6 +14,7 @@ namespace PageEditor
     [XmlInclude(typeof(LayerFill))]
     [XmlInclude(typeof(LayerImage))]
     [XmlInclude(typeof(LayerSpeechBaloon))]
+    [XmlInclude(typeof(LayerImageList))]
     public abstract class Layer
     {
         /// <summary>表示非表示</summary>
@@ -300,6 +301,82 @@ namespace PageEditor
             return null;
         }
     }
+
+    [Serializable]
+    public class ImageItem
+    {
+        /// <summary>ファイル名</summary>
+        [XmlAttribute]
+        public string FileName;
+
+        // 画像の表示位置中央X
+        [XmlAttribute]
+        public int X;
+
+        // 画像の表示位置中央Y
+        [XmlAttribute]
+        public int Y;
+
+        [XmlAttribute]
+        public float Angle;
+
+        [XmlAttribute]
+        public float Scale;
+
+        /// <summary>コンストラクタ</summary>
+        public ImageItem() : base()
+        {
+            FileName = null;
+            X = 0;
+            Y = 0;
+            Angle = 0;
+            Scale = 1;
+        }
+
+        internal void SetZoom(string relativeFileName, int documentWidth, int documentHeight, Image image)
+        {
+            FileName = relativeFileName;
+            X = documentWidth / 2;
+            Y = documentHeight / 2;
+            Angle = 0;
+            Scale = Math.Min((float)documentWidth / image.Width, (float)documentHeight / image.Height);
+        }
+    }
+
+    [Serializable]
+    public class LayerImageList : Layer
+    {
+        public List<ImageItem> ImageItems;
+
+        [XmlAttribute]
+        public int SelectedIndex;
+
+        /// <summary>
+        /// レイヤー種別を表す文字列の取得
+        /// </summary>
+        /// <returns></returns>
+        public override string LayerType()
+        {
+            return "イメージリスト";
+        }
+
+        /// <summary>コンストラクタ</summary>
+        public LayerImageList() : base()
+        {
+            ImageItems = new List<ImageItem>();
+            SelectedIndex = -1;
+        }
+
+        // 情報取得
+        internal ImageItem GetInfo()
+        {
+            if (SelectedIndex < 0 || ImageItems.Count <= SelectedIndex)
+                return null;
+
+            return ImageItems[SelectedIndex];
+        }
+    }
+    
 
     /// <summary>
     /// シート

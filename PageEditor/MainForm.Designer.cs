@@ -44,7 +44,9 @@ namespace PageEditor
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.sheetListBox = new System.Windows.Forms.ListBox();
             this.layerListBox = new System.Windows.Forms.ListBox();
+            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.imageListListBox = new System.Windows.Forms.ListBox();
             this.sheetMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.新規シートの作成ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
@@ -55,11 +57,16 @@ namespace PageEditor
             this.新規吹き出しレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.新規イメージレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.新規塗り潰しレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.新規イメージバッファレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.レイヤ削除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.helpLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.imageListOnItemMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ImageListItem削除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageListOnSpaceMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ImageListItem追加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -69,10 +76,16 @@ namespace PageEditor
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+            this.splitContainer3.Panel1.SuspendLayout();
+            this.splitContainer3.Panel2.SuspendLayout();
+            this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.sheetMenu.SuspendLayout();
             this.layerMenu.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            this.imageListOnItemMenu.SuspendLayout();
+            this.imageListOnSpaceMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -164,9 +177,8 @@ namespace PageEditor
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(45)))));
-            this.splitContainer1.Panel2.Controls.Add(this.pictureBox1);
-            this.splitContainer1.Panel2.SizeChanged += new System.EventHandler(this.splitContainer1_Panel2_SizeChanged);
+            this.splitContainer1.Panel2.BackColor = System.Drawing.SystemColors.Control;
+            this.splitContainer1.Panel2.Controls.Add(this.splitContainer3);
             this.splitContainer1.Size = new System.Drawing.Size(1108, 523);
             this.splitContainer1.SplitterDistance = 260;
             this.splitContainer1.TabIndex = 2;
@@ -226,17 +238,57 @@ namespace PageEditor
             this.layerListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.layerListBox_MouseDown);
             this.layerListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.layerListBox_MouseUp);
             // 
+            // splitContainer3
+            // 
+            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer3.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitContainer3.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer3.Name = "splitContainer3";
+            this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer3.Panel1
+            // 
+            this.splitContainer3.Panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(45)))));
+            this.splitContainer3.Panel1.Controls.Add(this.pictureBox1);
+            this.splitContainer3.Panel1.SizeChanged += new System.EventHandler(this.picturePanelSizeChanged);
+            // 
+            // splitContainer3.Panel2
+            // 
+            this.splitContainer3.Panel2.Controls.Add(this.imageListListBox);
+            this.splitContainer3.Size = new System.Drawing.Size(844, 523);
+            this.splitContainer3.SplitterDistance = 400;
+            this.splitContainer3.TabIndex = 0;
+            // 
             // pictureBox1
             // 
             this.pictureBox1.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.pictureBox1.Location = new System.Drawing.Point(14, 70);
+            this.pictureBox1.Location = new System.Drawing.Point(112, 20);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(818, 423);
+            this.pictureBox1.Size = new System.Drawing.Size(640, 360);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
+            // 
+            // imageListListBox
+            // 
+            this.imageListListBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.imageListListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.imageListListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.imageListListBox.FormattingEnabled = true;
+            this.imageListListBox.HorizontalExtent = 100;
+            this.imageListListBox.HorizontalScrollbar = true;
+            this.imageListListBox.IntegralHeight = false;
+            this.imageListListBox.ItemHeight = 100;
+            this.imageListListBox.Location = new System.Drawing.Point(0, 0);
+            this.imageListListBox.MultiColumn = true;
+            this.imageListListBox.Name = "imageListListBox";
+            this.imageListListBox.Size = new System.Drawing.Size(844, 119);
+            this.imageListListBox.TabIndex = 0;
+            this.imageListListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem);
+            this.imageListListBox.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            this.imageListListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.imageListListBox_MouseUp);
             // 
             // sheetMenu
             // 
@@ -286,41 +338,49 @@ namespace PageEditor
             this.新規吹き出しレイヤToolStripMenuItem,
             this.新規イメージレイヤToolStripMenuItem,
             this.新規塗り潰しレイヤToolStripMenuItem,
+            this.新規イメージバッファレイヤToolStripMenuItem,
             this.toolStripMenuItem2,
             this.レイヤ削除ToolStripMenuItem});
             this.layerMenu.Name = "layerMenu";
-            this.layerMenu.Size = new System.Drawing.Size(168, 98);
+            this.layerMenu.Size = new System.Drawing.Size(195, 120);
             // 
             // 新規吹き出しレイヤToolStripMenuItem
             // 
             this.新規吹き出しレイヤToolStripMenuItem.Name = "新規吹き出しレイヤToolStripMenuItem";
-            this.新規吹き出しレイヤToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.新規吹き出しレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.新規吹き出しレイヤToolStripMenuItem.Text = "新規吹き出しレイヤ";
             this.新規吹き出しレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
             // 
             // 新規イメージレイヤToolStripMenuItem
             // 
             this.新規イメージレイヤToolStripMenuItem.Name = "新規イメージレイヤToolStripMenuItem";
-            this.新規イメージレイヤToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.新規イメージレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.新規イメージレイヤToolStripMenuItem.Text = "新規イメージレイヤ";
             this.新規イメージレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
             // 
             // 新規塗り潰しレイヤToolStripMenuItem
             // 
             this.新規塗り潰しレイヤToolStripMenuItem.Name = "新規塗り潰しレイヤToolStripMenuItem";
-            this.新規塗り潰しレイヤToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.新規塗り潰しレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.新規塗り潰しレイヤToolStripMenuItem.Text = "新規塗り潰しレイヤ";
             this.新規塗り潰しレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
+            // 
+            // 新規イメージバッファレイヤToolStripMenuItem
+            // 
+            this.新規イメージバッファレイヤToolStripMenuItem.Name = "新規イメージバッファレイヤToolStripMenuItem";
+            this.新規イメージバッファレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.新規イメージバッファレイヤToolStripMenuItem.Text = "新規イメージバッファレイヤ";
+            this.新規イメージバッファレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(164, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(191, 6);
             // 
             // レイヤ削除ToolStripMenuItem
             // 
             this.レイヤ削除ToolStripMenuItem.Name = "レイヤ削除ToolStripMenuItem";
-            this.レイヤ削除ToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
+            this.レイヤ削除ToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
             this.レイヤ削除ToolStripMenuItem.Text = "削除";
             this.レイヤ削除ToolStripMenuItem.Click += new System.EventHandler(this.レイヤ削除ToolStripMenuItem_Click);
             // 
@@ -345,6 +405,34 @@ namespace PageEditor
             this.helpLabel.Size = new System.Drawing.Size(35, 17);
             this.helpLabel.Text = "HELP";
             // 
+            // imageListOnItemMenu
+            // 
+            this.imageListOnItemMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ImageListItem削除ToolStripMenuItem});
+            this.imageListOnItemMenu.Name = "imageListOnItemMenu";
+            this.imageListOnItemMenu.Size = new System.Drawing.Size(99, 26);
+            // 
+            // ImageListItem削除ToolStripMenuItem
+            // 
+            this.ImageListItem削除ToolStripMenuItem.Name = "ImageListItem削除ToolStripMenuItem";
+            this.ImageListItem削除ToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
+            this.ImageListItem削除ToolStripMenuItem.Text = "削除";
+            this.ImageListItem削除ToolStripMenuItem.Click += new System.EventHandler(this.ImageListItem削除ToolStripMenuItem_Click);
+            // 
+            // imageListOnSpaceMenu
+            // 
+            this.imageListOnSpaceMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ImageListItem追加ToolStripMenuItem});
+            this.imageListOnSpaceMenu.Name = "imageListOnSpaceMenu";
+            this.imageListOnSpaceMenu.Size = new System.Drawing.Size(181, 48);
+            // 
+            // ImageListItem追加ToolStripMenuItem
+            // 
+            this.ImageListItem追加ToolStripMenuItem.Name = "ImageListItem追加ToolStripMenuItem";
+            this.ImageListItem追加ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.ImageListItem追加ToolStripMenuItem.Text = "追加";
+            this.ImageListItem追加ToolStripMenuItem.Click += new System.EventHandler(this.ImageListItem追加ToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -368,11 +456,17 @@ namespace PageEditor
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            this.splitContainer3.Panel1.ResumeLayout(false);
+            this.splitContainer3.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+            this.splitContainer3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.sheetMenu.ResumeLayout(false);
             this.layerMenu.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            this.imageListOnItemMenu.ResumeLayout(false);
+            this.imageListOnSpaceMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -408,6 +502,13 @@ namespace PageEditor
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel helpLabel;
+        private System.Windows.Forms.SplitContainer splitContainer3;
+        private System.Windows.Forms.ToolStripMenuItem 新規イメージバッファレイヤToolStripMenuItem;
+        private System.Windows.Forms.ListBox imageListListBox;
+        private System.Windows.Forms.ContextMenuStrip imageListOnItemMenu;
+        private System.Windows.Forms.ToolStripMenuItem ImageListItem削除ToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip imageListOnSpaceMenu;
+        private System.Windows.Forms.ToolStripMenuItem ImageListItem追加ToolStripMenuItem;
     }
 }
 
