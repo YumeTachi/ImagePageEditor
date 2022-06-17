@@ -62,6 +62,7 @@ namespace PageEditor
 
             // 描画更新を明示的に呼び出す。
             picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
         }
 
         /// <summary>
@@ -220,7 +221,7 @@ namespace PageEditor
                             }
 
                             // 描画更新を明示的に呼び出す。
-                            picturePanelSizeChanged(null, null);
+                            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
                         }
                     }
                 }
@@ -284,14 +285,14 @@ namespace PageEditor
 
             // --------------------------------------------------------------------------
             // 描画更新
-            ImageUpdate();
+            ImageUpdate(ImageOperation.UpdateType.NONE);
         }
 
         /// <summary>
         /// メインキャンバスの描画更新
         /// </summary>
         /// <param name="sheet"></param>
-        public void ImageUpdate()
+        internal void ImageUpdate(ImageOperation.UpdateType updateType)
         {
             Sheet sheet = document.CurrentSheet;
 
@@ -322,7 +323,20 @@ namespace PageEditor
             }
 
             // サムネイル更新タイマースタート
-            timer1.Start();
+            switch (updateType)
+            {
+                case ImageOperation.UpdateType.IMMEDIATELY:
+                    timer1_Tick(null, null);
+                    break;
+
+                case ImageOperation.UpdateType.LATER:
+                    timer1.Start();
+                    break;
+
+                default:
+                case ImageOperation.UpdateType.NONE:
+                    break;
+            }    
 
             // 描画更新
             pictureBox1.Refresh();
@@ -335,8 +349,9 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            if (ImageOperation.MouseDown(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this))
-                ImageUpdate();
+            ImageOperation.UpdateType updateType = ImageOperation.MouseDown(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this);
+            if (updateType != ImageOperation.UpdateType.NONE)
+                ImageUpdate(updateType);
         }
 
         /// <summary>
@@ -346,8 +361,9 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (ImageOperation.MouseMove(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this))
-                ImageUpdate();
+            ImageOperation.UpdateType updateType = ImageOperation.MouseMove(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this);
+            if (updateType != ImageOperation.UpdateType.NONE)
+                ImageUpdate(updateType);
         }
 
         /// <summary>
@@ -357,8 +373,9 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (ImageOperation.MouseUp(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this))
-                ImageUpdate();
+            ImageOperation.UpdateType updateType = ImageOperation.MouseUp(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this);
+            if (updateType != ImageOperation.UpdateType.NONE)
+                ImageUpdate(updateType);
         }
 
         // サムネイル更新処理
@@ -429,7 +446,7 @@ namespace PageEditor
                 ApplyList();
 
                 // 描画更新を明示的に呼び出す。
-                picturePanelSizeChanged(null, null);
+                ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
 
                 // Documentを保存
                 DataControl.SaveXML(MainFile, document);
@@ -480,7 +497,7 @@ namespace PageEditor
                 ApplyList();
 
                 // 描画更新を明示的に呼び出す。
-                picturePanelSizeChanged(null, null);
+                ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
 
                 this.Text = "ワークスペース:" + MainFile;
                 保存ToolStripMenuItem.Text = "上書き保存";
@@ -604,7 +621,7 @@ namespace PageEditor
             ApplySheet();
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
         }
 
         private void シート名の変更ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -636,7 +653,7 @@ namespace PageEditor
             ApplySheet();
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
         }
 
         private void sheetListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -651,7 +668,7 @@ namespace PageEditor
             ApplySheet();
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.NONE);
         }
 
         #endregion
@@ -692,7 +709,7 @@ namespace PageEditor
                         layerListBox.Invalidate(layerListBox.GetItemRectangle(index));
 
                         // 描画更新を明示的に呼び出す。
-                        picturePanelSizeChanged(null, null);
+                        ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
                     }
 
                     if (toLayer != document.CurrentSheet.CurrentLayer)
@@ -731,7 +748,7 @@ namespace PageEditor
             }
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
         }
 
         private void 新規レイヤToolStripMenuItem_Click(object sender, EventArgs e)
@@ -760,7 +777,7 @@ namespace PageEditor
             }
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
         }
 
         /// <summary>
@@ -849,7 +866,7 @@ namespace PageEditor
             }
         }
 
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void imageListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (JLUILocker.IsLocked())
                 return;
@@ -858,7 +875,7 @@ namespace PageEditor
             layer.SelectedIndex = imageListListBox.SelectedIndex - 1;
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
             layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
         }
 
@@ -909,7 +926,7 @@ namespace PageEditor
             }
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
             layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
         }
 
@@ -971,7 +988,7 @@ namespace PageEditor
             }
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
             layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
         }
     }

@@ -287,7 +287,7 @@ namespace PageEditor
             this.imageListListBox.Size = new System.Drawing.Size(844, 119);
             this.imageListListBox.TabIndex = 0;
             this.imageListListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem);
-            this.imageListListBox.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
+            this.imageListListBox.SelectedIndexChanged += new System.EventHandler(this.imageListBox_SelectedIndexChanged);
             this.imageListListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.imageListListBox_MouseUp);
             // 
             // sheetMenu

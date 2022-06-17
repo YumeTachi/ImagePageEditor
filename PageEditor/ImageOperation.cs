@@ -7,6 +7,13 @@ namespace PageEditor
 {
     static class ImageOperation
     {
+        internal enum UpdateType
+        {
+            NONE,
+            IMMEDIATELY,
+            LATER
+        }
+
         private class MouseControlInfo
         {
             public enum ControlStatus
@@ -42,11 +49,11 @@ namespace PageEditor
         static MouseControlInfo MouseControl = new MouseControlInfo();
 
 
-        internal static bool MouseDown(JLMouseEventArgs e, Layer layer, Document document, MainForm mainForm)
+        internal static UpdateType MouseDown(JLMouseEventArgs e, Layer layer, Document document, MainForm mainForm)
         {
             // 処理中なら何もしない
             if (MouseControl.Status != MouseControlInfo.ControlStatus.None)
-                return false;
+                return UpdateType.NONE;
 
             // コントロールを開始
             MouseControl.Status = MouseControlInfo.ControlStatus.Deferment;
@@ -82,10 +89,10 @@ namespace PageEditor
                     break;
             }
 
-            return false;
+            return UpdateType.NONE;
         }
 
-        internal static bool MouseMove(JLMouseEventArgs e, Layer layer, Document document, MainForm mainForm)
+        internal static UpdateType MouseMove(JLMouseEventArgs e, Layer layer, Document document, MainForm mainForm)
         {
             if (MouseControl.Status == MouseControlInfo.ControlStatus.Deferment)
             {
@@ -116,7 +123,7 @@ namespace PageEditor
                             speechBaloon.X = MouseControl.ObjectPoint.X + (e.Location.X - MouseControl.DownPoint.X);
                             speechBaloon.Y = MouseControl.ObjectPoint.Y + (e.Location.Y - MouseControl.DownPoint.Y);
 
-                            return true;
+                            return UpdateType.LATER;
                         }
                         break;
 
@@ -129,16 +136,16 @@ namespace PageEditor
                             layerImage.X = MouseControl.ObjectPoint.X + (e.Location.X - MouseControl.DownPoint.X);
                             layerImage.Y = MouseControl.ObjectPoint.Y + (e.Location.Y - MouseControl.DownPoint.Y);
 
-                            return true;
+                            return UpdateType.LATER;
                         }
                         break;
                 }
             }
 
-            return false;
+            return UpdateType.NONE;
         }
 
-        internal static bool MouseUp(JLMouseEventArgs e, Layer layer, Document document, MainForm mainForm)
+        internal static UpdateType MouseUp(JLMouseEventArgs e, Layer layer, Document document, MainForm mainForm)
         {
             MouseControlInfo mouseControlTmp = new MouseControlInfo(MouseControl);
             MouseControl.Status = MouseControlInfo.ControlStatus.None;
@@ -167,7 +174,7 @@ namespace PageEditor
                                 m_TextEditor.Set(speechBaloon);
                                 m_TextEditor.Show(mainForm);
 
-                                return false;
+                                return UpdateType.IMMEDIATELY;
                             }
                             else
                             {
@@ -183,7 +190,7 @@ namespace PageEditor
 
                                     layerSpeechBaloon.SpeechBaloons.Add(newSpeechBaloon);
 
-                                    return true;
+                                    return UpdateType.IMMEDIATELY;
                                 }
                             }
                         }
@@ -199,7 +206,7 @@ namespace PageEditor
                                 c.Show(Cursor.Position);
 
                                 // ここでは変化しないのでfalse応答
-                                return false;
+                                return UpdateType.NONE;
                             }
                             else
                             {
@@ -230,11 +237,11 @@ namespace PageEditor
                         break;
                 }
 
-                return false;
+                return UpdateType.NONE;
             }
 
             MouseControl.Status = MouseControlInfo.ControlStatus.None;
-            return false;
+            return UpdateType.NONE;
         }
 
         /// <summary>
@@ -242,7 +249,7 @@ namespace PageEditor
         /// </summary>
         /// <param name="layerFill"></param>
         /// <returns></returns>
-        private static bool ClickLayerFill(LayerFill layerFill)
+        private static UpdateType ClickLayerFill(LayerFill layerFill)
         {
             // ColorDialog
             ColorDialog cd = new ColorDialog();
@@ -259,10 +266,10 @@ namespace PageEditor
             {
                 //選択された色の取得
                 layerFill.BackColor = cd.Color;
-                return true;
+                return UpdateType.IMMEDIATELY;
             }
 
-            return false;
+            return UpdateType.NONE;
         }
 
         /// <summary>
@@ -270,12 +277,12 @@ namespace PageEditor
         /// </summary>
         /// <param name="layerImage"></param>
         /// <returns></returns>
-        private static bool ClickLayerImage(LayerImage layerImage, Document document)
+        private static UpdateType ClickLayerImage(LayerImage layerImage, Document document)
         {
             if (MainForm.DataDirectory == null)
             {
                 MessageBox.Show("画像ファイルを指定する際は先にワークスペースを保存してください。", "メッセージ", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return false;
+                return UpdateType.NONE;
             }
 
             // OpenFileDialog
@@ -309,15 +316,15 @@ namespace PageEditor
                 if (image == null)
                 {
                     MessageBox.Show("画像ファイルを開けませんでした。", "メッセージ", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return false;
+                    return UpdateType.NONE;
                 }
 
                 layerImage.SetZoom(relative, document.Width, document.Height, image);
 
-                return true;
+                return UpdateType.IMMEDIATELY;
             }
 
-            return false;
+            return UpdateType.NONE;
         }
 
         static TextEditer m_TextEditor = null;
@@ -348,7 +355,7 @@ namespace PageEditor
             layerSpeechBaloon.SpeechBaloons.Remove(speechBaloon);
 
             // 描画更新
-            MainForm.GetInstance().ImageUpdate();
+            MainForm.GetInstance().ImageUpdate(UpdateType.IMMEDIATELY);
         }
 
         /// <summary>
@@ -395,7 +402,7 @@ namespace PageEditor
             }
 
             // 描画更新
-            MainForm.GetInstance().ImageUpdate();
+            MainForm.GetInstance().ImageUpdate(UpdateType.IMMEDIATELY);
         }
 
     }
