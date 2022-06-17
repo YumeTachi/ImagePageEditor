@@ -203,21 +203,46 @@ namespace PageEditor
                             // PictureControlに追加しておく
                             PictureControl.Add(fullPath, image);
 
-                            LayerImage layerImage = new LayerImage();
-
-                            // documentに追加
-                            document.CurrentSheet.Layers.Insert(document.CurrentSheet.SelectIndex + 1, layerImage);
-                            document.CurrentSheet.CurrentLayer = layerImage;
-
-                            layerImage.SetZoom(GetRelative(fullPath), document.Width, document.Height, image);
-
-                            using (new JLUILocker())
+                            // ImageList選択中の場合はそちらに張り付け
+                            if (document.CurrentSheet.CurrentLayer is LayerImageList)
                             {
-                                // 描画更新をいったん止めて要素を更新
-                                layerListBox.BeginUpdate();
-                                layerListBox.Items.Insert(layerListBox.SelectedIndex, layerImage);
-                                layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
-                                layerListBox.EndUpdate();
+                                ImageItem item = new ImageItem();
+                                item.SetZoom(GetRelative(fullPath), document.Width, document.Height, image);
+
+                                using (new JLUILocker())
+                                {
+                                    // 描画更新をいったん止めて要素を更新
+                                    imageListListBox.BeginUpdate();
+                                    LayerImageList layer = document.CurrentSheet.CurrentLayer as LayerImageList;
+                                    layer.ImageItems.Add(item);
+                                    layer.SelectedIndex = layer.ImageItems.Count - 1;
+                                    imageListListBox.Items.Add("");
+                                    imageListListBox.SelectedIndex = imageListListBox.Items.Count - 1;
+                                    imageListListBox.EndUpdate();
+                                }
+
+                                // 描画更新を明示的に呼び出す。
+                                ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+                                layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
+                            }
+                            else
+                            {
+                                LayerImage layerImage = new LayerImage();
+
+                                // documentに追加
+                                document.CurrentSheet.Layers.Insert(document.CurrentSheet.SelectIndex + 1, layerImage);
+                                document.CurrentSheet.CurrentLayer = layerImage;
+
+                                layerImage.SetZoom(GetRelative(fullPath), document.Width, document.Height, image);
+
+                                using (new JLUILocker())
+                                {
+                                    // 描画更新をいったん止めて要素を更新
+                                    layerListBox.BeginUpdate();
+                                    layerListBox.Items.Insert(layerListBox.SelectedIndex, layerImage);
+                                    layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
+                                    layerListBox.EndUpdate();
+                                }
                             }
 
                             // 描画更新を明示的に呼び出す。
@@ -861,7 +886,8 @@ namespace PageEditor
                     ImageItem item = layer.ImageItems[e.Index - 1];
 
                     Image image = PictureControl.GetThumbImage(item.FileName);
-                    e.Graphics.DrawImage(image, new Rectangle(e.Bounds.Left + 2, e.Bounds.Top + 2, e.Bounds.Width - 4, e.Bounds.Height - 4));
+                    if (image != null)
+                        e.Graphics.DrawImage(image, new Rectangle(e.Bounds.Left + 2, e.Bounds.Top + 2, e.Bounds.Width - 4, e.Bounds.Height - 4));
                 }
             }
         }

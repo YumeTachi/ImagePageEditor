@@ -146,11 +146,10 @@ namespace PageEditor
             DateTime dateTime = System.IO.File.GetLastWriteTime(fullPath);
 
             // 画像を登録する
-            PictureInfo pi = new PictureInfo()
-            {
-                Picture = image,
-                Update = dateTime
-            };
+            PictureInfo pi = new PictureInfo();
+            pi.Update = dateTime;
+            pi.Picture = image;
+            pi.ThumbImage = pi.ThumbImage = pi.Picture.GetThumbnailImage(50, 50, delegate { return false; }, IntPtr.Zero);
 
             PictureInfos.Add(fullPath, pi);
         }
