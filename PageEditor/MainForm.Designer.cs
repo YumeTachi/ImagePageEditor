@@ -42,31 +42,14 @@ namespace PageEditor
             this.クリップボードにコピーToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.sheetListBox = new System.Windows.Forms.ListBox();
-            this.layerListBox = new System.Windows.Forms.ListBox();
+            this.sheetListBox = new PageEditor.SheetListBox();
+            this.layerListBox = new PageEditor.LayerListBox();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.imageListListBox = new System.Windows.Forms.ListBox();
-            this.sheetMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.新規シートの作成ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.シート名の変更ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
-            this.シート削除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.layerMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.新規吹き出しレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.新規イメージレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.新規塗り潰しレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.新規イメージバッファレイヤToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.レイヤ削除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageListListBox = new PageEditor.ImageListBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.helpLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.imageListOnItemMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.ImageListItem削除ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.imageListOnSpaceMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.ImageListItem追加ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -81,11 +64,7 @@ namespace PageEditor
             this.splitContainer3.Panel2.SuspendLayout();
             this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.sheetMenu.SuspendLayout();
-            this.layerMenu.SuspendLayout();
             this.statusStrip1.SuspendLayout();
-            this.imageListOnItemMenu.SuspendLayout();
-            this.imageListOnSpaceMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -215,9 +194,7 @@ namespace PageEditor
             this.sheetListBox.Name = "sheetListBox";
             this.sheetListBox.Size = new System.Drawing.Size(260, 316);
             this.sheetListBox.TabIndex = 0;
-            this.sheetListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.sheetListBox_DrawItem);
             this.sheetListBox.SelectedIndexChanged += new System.EventHandler(this.sheetListBox_SelectedIndexChanged);
-            this.sheetListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.sheetListBox_MouseUp);
             // 
             // layerListBox
             // 
@@ -233,10 +210,7 @@ namespace PageEditor
             this.layerListBox.Name = "layerListBox";
             this.layerListBox.Size = new System.Drawing.Size(260, 203);
             this.layerListBox.TabIndex = 5;
-            this.layerListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.layerListBox_DrawItem);
             this.layerListBox.SelectedIndexChanged += new System.EventHandler(this.layerListBox_SelectedIndexChanged);
-            this.layerListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.layerListBox_MouseDown);
-            this.layerListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.layerListBox_MouseUp);
             // 
             // splitContainer3
             // 
@@ -286,103 +260,7 @@ namespace PageEditor
             this.imageListListBox.Name = "imageListListBox";
             this.imageListListBox.Size = new System.Drawing.Size(844, 119);
             this.imageListListBox.TabIndex = 0;
-            this.imageListListBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.listBox1_DrawItem);
-            this.imageListListBox.SelectedIndexChanged += new System.EventHandler(this.imageListBox_SelectedIndexChanged);
-            this.imageListListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.imageListListBox_MouseUp);
-            // 
-            // sheetMenu
-            // 
-            this.sheetMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.新規シートの作成ToolStripMenuItem,
-            this.toolStripMenuItem1,
-            this.シート名の変更ToolStripMenuItem,
-            this.toolStripMenuItem5,
-            this.シート削除ToolStripMenuItem});
-            this.sheetMenu.Name = "sheetMenu";
-            this.sheetMenu.Size = new System.Drawing.Size(159, 82);
-            // 
-            // 新規シートの作成ToolStripMenuItem
-            // 
-            this.新規シートの作成ToolStripMenuItem.Name = "新規シートの作成ToolStripMenuItem";
-            this.新規シートの作成ToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
-            this.新規シートの作成ToolStripMenuItem.Text = "新規シートの作成";
-            this.新規シートの作成ToolStripMenuItem.Click += new System.EventHandler(this.新規シートの作成ToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(155, 6);
-            // 
-            // シート名の変更ToolStripMenuItem
-            // 
-            this.シート名の変更ToolStripMenuItem.Name = "シート名の変更ToolStripMenuItem";
-            this.シート名の変更ToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
-            this.シート名の変更ToolStripMenuItem.Text = "名前の変更";
-            this.シート名の変更ToolStripMenuItem.Click += new System.EventHandler(this.シート名の変更ToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem5
-            // 
-            this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(155, 6);
-            // 
-            // シート削除ToolStripMenuItem
-            // 
-            this.シート削除ToolStripMenuItem.Name = "シート削除ToolStripMenuItem";
-            this.シート削除ToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
-            this.シート削除ToolStripMenuItem.Text = "削除";
-            this.シート削除ToolStripMenuItem.Click += new System.EventHandler(this.シート削除ToolStripMenuItem_Click);
-            // 
-            // layerMenu
-            // 
-            this.layerMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.新規吹き出しレイヤToolStripMenuItem,
-            this.新規イメージレイヤToolStripMenuItem,
-            this.新規塗り潰しレイヤToolStripMenuItem,
-            this.新規イメージバッファレイヤToolStripMenuItem,
-            this.toolStripMenuItem2,
-            this.レイヤ削除ToolStripMenuItem});
-            this.layerMenu.Name = "layerMenu";
-            this.layerMenu.Size = new System.Drawing.Size(195, 120);
-            // 
-            // 新規吹き出しレイヤToolStripMenuItem
-            // 
-            this.新規吹き出しレイヤToolStripMenuItem.Name = "新規吹き出しレイヤToolStripMenuItem";
-            this.新規吹き出しレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
-            this.新規吹き出しレイヤToolStripMenuItem.Text = "新規吹き出しレイヤ";
-            this.新規吹き出しレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
-            // 
-            // 新規イメージレイヤToolStripMenuItem
-            // 
-            this.新規イメージレイヤToolStripMenuItem.Name = "新規イメージレイヤToolStripMenuItem";
-            this.新規イメージレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
-            this.新規イメージレイヤToolStripMenuItem.Text = "新規イメージレイヤ";
-            this.新規イメージレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
-            // 
-            // 新規塗り潰しレイヤToolStripMenuItem
-            // 
-            this.新規塗り潰しレイヤToolStripMenuItem.Name = "新規塗り潰しレイヤToolStripMenuItem";
-            this.新規塗り潰しレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
-            this.新規塗り潰しレイヤToolStripMenuItem.Text = "新規塗り潰しレイヤ";
-            this.新規塗り潰しレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
-            // 
-            // 新規イメージバッファレイヤToolStripMenuItem
-            // 
-            this.新規イメージバッファレイヤToolStripMenuItem.Name = "新規イメージバッファレイヤToolStripMenuItem";
-            this.新規イメージバッファレイヤToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
-            this.新規イメージバッファレイヤToolStripMenuItem.Text = "新規イメージバッファレイヤ";
-            this.新規イメージバッファレイヤToolStripMenuItem.Click += new System.EventHandler(this.新規レイヤToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(191, 6);
-            // 
-            // レイヤ削除ToolStripMenuItem
-            // 
-            this.レイヤ削除ToolStripMenuItem.Name = "レイヤ削除ToolStripMenuItem";
-            this.レイヤ削除ToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
-            this.レイヤ削除ToolStripMenuItem.Text = "削除";
-            this.レイヤ削除ToolStripMenuItem.Click += new System.EventHandler(this.レイヤ削除ToolStripMenuItem_Click);
+            this.imageListListBox.SelectedIndexChanged += new System.EventHandler(this.imageListListBox_SelectedIndexChanged);
             // 
             // timer1
             // 
@@ -404,34 +282,6 @@ namespace PageEditor
             this.helpLabel.Name = "helpLabel";
             this.helpLabel.Size = new System.Drawing.Size(35, 17);
             this.helpLabel.Text = "HELP";
-            // 
-            // imageListOnItemMenu
-            // 
-            this.imageListOnItemMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ImageListItem削除ToolStripMenuItem});
-            this.imageListOnItemMenu.Name = "imageListOnItemMenu";
-            this.imageListOnItemMenu.Size = new System.Drawing.Size(99, 26);
-            // 
-            // ImageListItem削除ToolStripMenuItem
-            // 
-            this.ImageListItem削除ToolStripMenuItem.Name = "ImageListItem削除ToolStripMenuItem";
-            this.ImageListItem削除ToolStripMenuItem.Size = new System.Drawing.Size(98, 22);
-            this.ImageListItem削除ToolStripMenuItem.Text = "削除";
-            this.ImageListItem削除ToolStripMenuItem.Click += new System.EventHandler(this.ImageListItem削除ToolStripMenuItem_Click);
-            // 
-            // imageListOnSpaceMenu
-            // 
-            this.imageListOnSpaceMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ImageListItem追加ToolStripMenuItem});
-            this.imageListOnSpaceMenu.Name = "imageListOnSpaceMenu";
-            this.imageListOnSpaceMenu.Size = new System.Drawing.Size(181, 48);
-            // 
-            // ImageListItem追加ToolStripMenuItem
-            // 
-            this.ImageListItem追加ToolStripMenuItem.Name = "ImageListItem追加ToolStripMenuItem";
-            this.ImageListItem追加ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.ImageListItem追加ToolStripMenuItem.Text = "追加";
-            this.ImageListItem追加ToolStripMenuItem.Click += new System.EventHandler(this.ImageListItem追加ToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -461,12 +311,8 @@ namespace PageEditor
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
             this.splitContainer3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.sheetMenu.ResumeLayout(false);
-            this.layerMenu.ResumeLayout(false);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            this.imageListOnItemMenu.ResumeLayout(false);
-            this.imageListOnSpaceMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -475,40 +321,23 @@ namespace PageEditor
         #endregion
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.ListBox sheetListBox;
+        private PageEditor.SheetListBox sheetListBox;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.ContextMenuStrip sheetMenu;
-        private System.Windows.Forms.ToolStripMenuItem 新規シートの作成ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem シート削除ToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip layerMenu;
-        private System.Windows.Forms.ToolStripMenuItem 新規吹き出しレイヤToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 新規イメージレイヤToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 新規塗り潰しレイヤToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem レイヤ削除ToolStripMenuItem;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
         private System.Windows.Forms.ToolStripMenuItem 新規作成ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
         private System.Windows.Forms.ToolStripMenuItem 開くToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem 保存ToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
-        private System.Windows.Forms.ListBox layerListBox;
+        private PageEditor.LayerListBox layerListBox;
         private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton2;
         private System.Windows.Forms.ToolStripMenuItem クリップボードにコピーToolStripMenuItem;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.ToolStripMenuItem シート名の変更ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel helpLabel;
         private System.Windows.Forms.SplitContainer splitContainer3;
-        private System.Windows.Forms.ToolStripMenuItem 新規イメージバッファレイヤToolStripMenuItem;
-        private System.Windows.Forms.ListBox imageListListBox;
-        private System.Windows.Forms.ContextMenuStrip imageListOnItemMenu;
-        private System.Windows.Forms.ToolStripMenuItem ImageListItem削除ToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip imageListOnSpaceMenu;
-        private System.Windows.Forms.ToolStripMenuItem ImageListItem追加ToolStripMenuItem;
+        private PageEditor.ImageListBox imageListListBox;
     }
 }
 

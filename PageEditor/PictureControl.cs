@@ -10,6 +10,8 @@ namespace PageEditor
 {
     static class PictureControl
     {
+        private const int THUMBNAIL_SIZE = 20;
+
         class PictureInfo
         {
             public Image Picture;
@@ -59,7 +61,7 @@ namespace PageEditor
                 return null;
 
             // フルパスの取得
-            string fullPath = MainForm.GetAbsolute(relativeFileName);
+            string fullPath = MainForm.GetInstance().GetAbsolutePath(relativeFileName);
 
             // ファイルがない場合はここで終わり
             if (System.IO.File.Exists(fullPath) == false)
@@ -93,7 +95,7 @@ namespace PageEditor
                 // データ更新して詰めなおす。
                 pi.Update = dateTime;
                 pi.Picture = LoadPictureCore(fullPath);
-                pi.ThumbImage = pi.Picture.GetThumbnailImage(50, 50, delegate { return false; }, IntPtr.Zero);
+                pi.ThumbImage = CreateThumbnail(pi.Picture);
 
                 PictureInfos[fullPath] = pi;
 
@@ -105,7 +107,7 @@ namespace PageEditor
                 PictureInfo pi = new PictureInfo();
                 pi.Update = dateTime;
                 pi.Picture = LoadPictureCore(fullPath);
-                pi.ThumbImage = pi.Picture.GetThumbnailImage(50, 50, delegate { return false; }, IntPtr.Zero);
+                pi.ThumbImage = CreateThumbnail(pi.Picture);
 
                 PictureInfos.Add(fullPath, pi);
 
@@ -149,9 +151,19 @@ namespace PageEditor
             PictureInfo pi = new PictureInfo();
             pi.Update = dateTime;
             pi.Picture = image;
-            pi.ThumbImage = pi.ThumbImage = pi.Picture.GetThumbnailImage(50, 50, delegate { return false; }, IntPtr.Zero);
+            pi.ThumbImage = CreateThumbnail(pi.Picture);
 
             PictureInfos.Add(fullPath, pi);
+        }
+
+        /// <summary>
+        /// サムネイル画像の生成
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
+        internal static Image CreateThumbnail(Image image)
+        {
+            return image.GetThumbnailImage(THUMBNAIL_SIZE, THUMBNAIL_SIZE, delegate { return false; }, IntPtr.Zero);
         }
     }
 }

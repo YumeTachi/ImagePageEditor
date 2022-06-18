@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace PageEditor
@@ -21,7 +23,7 @@ namespace PageEditor
         /// MainFileが c:\main.jlw だとすると、
         /// DataDirectory は c:\main\ になる。
         /// </summary>
-        static public string DataDirectory
+        public string DataDirectory
         { 
             get
             {
@@ -34,10 +36,14 @@ namespace PageEditor
         /// <summary>
         /// メインファイル
         /// </summary>
-        static private string MainFile { get; set; } 
+        private string MainFile { get; set; } 
+
+        /// <summary>
+        /// ドキュメント本体
+        /// </summary>
+        public Document Document { get; set; }
 
 
-        Document document = null;
         Image image = null;
 
         float pictureRate = 1.0f;
@@ -47,22 +53,31 @@ namespace PageEditor
         {
             InitializeComponent();
 
-            新規塗り潰しレイヤToolStripMenuItem.Tag = typeof(LayerFill);
-            新規イメージレイヤToolStripMenuItem.Tag = typeof(LayerImage);
-            新規吹き出しレイヤToolStripMenuItem.Tag = typeof(LayerSpeechBaloon);
-            新規イメージバッファレイヤToolStripMenuItem.Tag = typeof(LayerImageList);
-
             // ドキュメントの生成
-            document = CreateNewDocument();
-            image = new Bitmap(document.Width, document.Height);
+            Document = CreateNewDocument();
+            image = new Bitmap(Document.Width, Document.Height);
+
+            sheetListBox.OnSheetAdded += SheetListBox_OnSheetAdded;
+            sheetListBox.OnSheetRenamed += SheetListBox_OnSheetRenamed;
+            sheetListBox.OnSheetDeleted += SheetListBox_OnSheetDeleted;
+
+            layerListBox.OnLayerVisibleChanged += LayerListBox_OnLayerVisibleChanged;
+            layerListBox.OnLayerAdded += LayerListBox_OnLayerAdded;
+            layerListBox.OnLayerDeleted += LayerListBox_OnLayerDeleted;
+
+            imageListListBox.OnImageAdded += ImageListListBox_OnImageAdded;
+            imageListListBox.OnImageDeleted += ImageListListBox_OnImageDeleted;
+
+            // メインキャンバスの設定
+
 
             // ListBoxの更新
-            // TODO:SelectedChangedEventを受けて更新が必要なので名称や引数は追って検討
-            ApplyList();
+            sheetListBox.SetSheets(Document.Sheets.ToArray(), Document.CurrentSheet);
+            layerListBox.SetLayers(Document.CurrentSheet.Layers.ToArray(), Document.CurrentSheet.CurrentLayer);
 
             // 描画更新を明示的に呼び出す。
             picturePanelSizeChanged(null, null);
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+            ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
         }
 
         /// <summary>
@@ -92,7 +107,7 @@ namespace PageEditor
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static string GetAbsolute(string fileName)
+        public string GetAbsolutePath(string fileName)
         {
             if (DataDirectory == null)
                 return null;
@@ -105,7 +120,7 @@ namespace PageEditor
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public static string GetRelative(string fileName)
+        public string GetRelativePath(string fileName)
         {
             if (DataDirectory == null)
                 return null;
@@ -114,61 +129,6 @@ namespace PageEditor
                 return fileName.Substring(DataDirectory.Length);
 
             return null;
-        }
-
-        /// <summary>
-        /// リスト更新
-        /// </summary>
-        private void ApplyList()
-        {
-            using (new JLUILocker())
-            {
-                layerListBox.BeginUpdate();
-                sheetListBox.BeginUpdate();
-
-                sheetListBox.Items.Clear();
-                layerListBox.Items.Clear();
-
-                foreach (Sheet sheet in document.Sheets)
-                {
-                    sheetListBox.Items.Add(sheet);
-                }
-                sheetListBox.SelectedItem = document.CurrentSheet;
-
-                List<Layer> rev = new List<Layer>(document.CurrentSheet.Layers);
-                rev.Reverse();
-                foreach (Layer layer in rev)
-                {
-                    layerListBox.Items.Add(layer);
-                }
-                layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
-
-                layerListBox.EndUpdate();
-                sheetListBox.EndUpdate();
-            }
-        }
-
-        /// <summary>
-        /// リスト更新
-        /// </summary>
-        private void ApplySheet()
-        {
-            using (new JLUILocker())
-            {
-                layerListBox.BeginUpdate();
-
-                layerListBox.Items.Clear();
-
-                List<Layer> rev = new List<Layer>(document.CurrentSheet.Layers);
-                rev.Reverse();
-                foreach (Layer layer in rev)
-                {
-                    layerListBox.Items.Add(layer);
-                }
-                layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
-
-                layerListBox.EndUpdate();
-            }
         }
 
         //
@@ -204,16 +164,16 @@ namespace PageEditor
                             PictureControl.Add(fullPath, image);
 
                             // ImageList選択中の場合はそちらに張り付け
-                            if (document.CurrentSheet.CurrentLayer is LayerImageList)
+                            if (Document.CurrentSheet.CurrentLayer is LayerImageList)
                             {
                                 ImageItem item = new ImageItem();
-                                item.SetZoom(GetRelative(fullPath), document.Width, document.Height, image);
+                                item.SetZoom(GetRelativePath(fullPath), Document.Width, Document.Height, image);
 
                                 using (new JLUILocker())
                                 {
                                     // 描画更新をいったん止めて要素を更新
                                     imageListListBox.BeginUpdate();
-                                    LayerImageList layer = document.CurrentSheet.CurrentLayer as LayerImageList;
+                                    LayerImageList layer = Document.CurrentSheet.CurrentLayer as LayerImageList;
                                     layer.ImageItems.Add(item);
                                     layer.SelectedIndex = layer.ImageItems.Count - 1;
                                     imageListListBox.Items.Add("");
@@ -222,7 +182,7 @@ namespace PageEditor
                                 }
 
                                 // 描画更新を明示的に呼び出す。
-                                ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+                                ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
                                 layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
                             }
                             else
@@ -230,23 +190,23 @@ namespace PageEditor
                                 LayerImage layerImage = new LayerImage();
 
                                 // documentに追加
-                                document.CurrentSheet.Layers.Insert(document.CurrentSheet.SelectIndex + 1, layerImage);
-                                document.CurrentSheet.CurrentLayer = layerImage;
+                                Document.CurrentSheet.Layers.Insert(Document.CurrentSheet.SelectIndex + 1, layerImage);
+                                Document.CurrentSheet.CurrentLayer = layerImage;
 
-                                layerImage.SetZoom(GetRelative(fullPath), document.Width, document.Height, image);
+                                layerImage.SetZoom(GetRelativePath(fullPath), Document.Width, Document.Height, image);
 
                                 using (new JLUILocker())
                                 {
                                     // 描画更新をいったん止めて要素を更新
                                     layerListBox.BeginUpdate();
                                     layerListBox.Items.Insert(layerListBox.SelectedIndex, layerImage);
-                                    layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
+                                    layerListBox.SelectedItem = Document.CurrentSheet.CurrentLayer;
                                     layerListBox.EndUpdate();
                                 }
                             }
 
                             // 描画更新を明示的に呼び出す。
-                            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+                            ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
                         }
                     }
                 }
@@ -285,7 +245,7 @@ namespace PageEditor
         private void picturePanelSizeChanged(object sender, EventArgs e)
         {
             // ドキュメントが開かれていない（未初期化）の場合は何もしない
-            if (document == null)
+            if (Document == null)
                 return;
 
             // --------------------------------------------------------------------------
@@ -295,36 +255,19 @@ namespace PageEditor
             if (maxSize.Width < 10 || maxSize.Height < 10)
                 return;
 
-            pictureRate = Math.Min((float)maxSize.Width / document.Width,
-                                   (float)maxSize.Height / document.Height);
+            pictureRate = Math.Min((float)maxSize.Width / Document.Width,
+                                   (float)maxSize.Height / Document.Height);
 
             if (pictureRate <= 0.1f)
                 return;
 
-            pictureBox1.Width = (int)(document.Width * pictureRate);
-            pictureBox1.Height = (int)(document.Height * pictureRate);
+            pictureBox1.Width = (int)(Document.Width * pictureRate);
+            pictureBox1.Height = (int)(Document.Height * pictureRate);
 
-            Point position = new Point((maxSize.Width - pictureBox1.Width) / 2, (maxSize.Height - pictureBox1.Height) / 2);
-
-            pictureBox1.Location = position;
-
-            // --------------------------------------------------------------------------
-            // 描画更新
-            ImageUpdate(ImageOperation.UpdateType.NONE);
-        }
-
-        /// <summary>
-        /// メインキャンバスの描画更新
-        /// </summary>
-        /// <param name="sheet"></param>
-        internal void ImageUpdate(ImageOperation.UpdateType updateType)
-        {
-            Sheet sheet = document.CurrentSheet;
-
-            // Imageがなければ生成
+            // Imageがない、あるいはサイズが違えば生成
             if (pictureBox1.Image == null
-                || pictureBox1.Image.Width != pictureBox1.Width
-                || pictureBox1.Image.Height != pictureBox1.Height)
+             || pictureBox1.Image.Width != pictureBox1.Width
+             || pictureBox1.Image.Height != pictureBox1.Height)
             {
                 // 生成済みの場合は消去。これはどのくらい効果があるのかはよくわからない。
                 if (pictureBox1.Image != null)
@@ -335,8 +278,32 @@ namespace PageEditor
                 pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             }
 
+            // 位置変更
+            Point position = new Point((maxSize.Width - pictureBox1.Width) / 2, (maxSize.Height - pictureBox1.Height) / 2);
+            pictureBox1.Location = position;
+
+            // --------------------------------------------------------------------------
+            // 描画更新
+            ImageUpdate(ImageOperation.ThumbnailUpdateType.NONE);
+        }
+
+        /// <summary>
+        /// メインキャンバスの描画更新
+        /// </summary>
+        /// <param name="sheet"></param>
+        internal void ImageUpdate(ImageOperation.ThumbnailUpdateType thumbnailUpdateType)
+        {
+            // メインキャンバスの準備ができていない場合
+            if (pictureBox1.Image == null)
+                return;
+
             // 描画メイン
-            ImageDraw.Draw(image, sheet.Layers);
+            // サムネイル更新が不要以外の場合は描画更新があったはずなので再描画する。
+            if (thumbnailUpdateType != ImageOperation.ThumbnailUpdateType.NONE)
+            {
+                Sheet sheet = Document.CurrentSheet;
+                ImageDraw.Draw(image, sheet.Layers);
+            }
 
             // メインキャンバスに転送
             using (Graphics g = Graphics.FromImage(pictureBox1.Image))
@@ -347,19 +314,22 @@ namespace PageEditor
                 g.DrawImage(image, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
             }
 
-            // サムネイル更新タイマースタート
-            switch (updateType)
+            // サムネイル更新
+            switch (thumbnailUpdateType)
             {
-                case ImageOperation.UpdateType.IMMEDIATELY:
+                case ImageOperation.ThumbnailUpdateType.IMMEDIATELY:
+                    // 即時更新
                     timer1_Tick(null, null);
                     break;
 
-                case ImageOperation.UpdateType.LATER:
+                case ImageOperation.ThumbnailUpdateType.LATER:
+                    // タイマーによる更新
                     timer1.Start();
                     break;
 
                 default:
-                case ImageOperation.UpdateType.NONE:
+                case ImageOperation.ThumbnailUpdateType.NONE:
+                    // 更新なし
                     break;
             }    
 
@@ -374,8 +344,8 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            ImageOperation.UpdateType updateType = ImageOperation.MouseDown(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this);
-            if (updateType != ImageOperation.UpdateType.NONE)
+            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseDown(new JLMouseEventArgs(e, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
+            if (updateType != ImageOperation.ThumbnailUpdateType.NONE)
                 ImageUpdate(updateType);
         }
 
@@ -386,8 +356,8 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            ImageOperation.UpdateType updateType = ImageOperation.MouseMove(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this);
-            if (updateType != ImageOperation.UpdateType.NONE)
+            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseMove(new JLMouseEventArgs(e, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
+            if (updateType != ImageOperation.ThumbnailUpdateType.NONE)
                 ImageUpdate(updateType);
         }
 
@@ -398,8 +368,8 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            ImageOperation.UpdateType updateType = ImageOperation.MouseUp(new JLMouseEventArgs(e, pictureRate), document.CurrentSheet.CurrentLayer, document, this);
-            if (updateType != ImageOperation.UpdateType.NONE)
+            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseUp(new JLMouseEventArgs(e, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
+            if (updateType != ImageOperation.ThumbnailUpdateType.NONE)
                 ImageUpdate(updateType);
         }
 
@@ -415,7 +385,7 @@ namespace PageEditor
             Image thumbnail = image.GetThumbnailImage(48, 28, delegate { return false; }, IntPtr.Zero);
 
             // 更新
-            document.CurrentSheet.Thumbnail = thumbnail;
+            Document.CurrentSheet.Thumbnail = thumbnail;
 
             // 描画更新
             sheetListBox.Invalidate(sheetListBox.GetItemRectangle(sheetListBox.SelectedIndex));
@@ -463,18 +433,18 @@ namespace PageEditor
                 System.IO.Directory.CreateDirectory(DataDirectory);
 
                 // ドキュメントの生成
-                document = CreateNewDocument();
-                image = new Bitmap(document.Width, document.Height);
+                Document = CreateNewDocument();
+                image = new Bitmap(Document.Width, Document.Height);
 
                 // ListBoxの更新
-                // TODO:SelectedChangedEventを受けて更新が必要なので名称や引数は追って検討
-                ApplyList();
+                sheetListBox.SetSheets(Document.Sheets.ToArray(), Document.CurrentSheet);
+                layerListBox.SetLayers(Document.CurrentSheet.Layers.ToArray(), Document.CurrentSheet.CurrentLayer);
 
                 // 描画更新を明示的に呼び出す。
-                ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+                ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
 
                 // Documentを保存
-                DataControl.SaveXML(MainFile, document);
+                DataControl.SaveXML(MainFile, Document);
 
                 this.Text = "ワークスペース:" + MainFile;
                 保存ToolStripMenuItem.Text = "上書き保存";
@@ -514,15 +484,15 @@ namespace PageEditor
                 MainFile = ofd.FileName;
 
                 // ドキュメントの読み込み
-                document = DataControl.LoadXML<Document>(MainFile);
-                image = new Bitmap(document.Width, document.Height);
+                Document = DataControl.LoadXML<Document>(MainFile);
+                image = new Bitmap(Document.Width, Document.Height);
 
                 // ListBoxの更新
-                // TODO:SelectedChangedEventを受けて更新が必要なので名称や引数は追って検討
-                ApplyList();
+                sheetListBox.SetSheets(Document.Sheets.ToArray(), Document.CurrentSheet);
+                layerListBox.SetLayers(Document.CurrentSheet.Layers.ToArray(), Document.CurrentSheet.CurrentLayer);
 
                 // 描画更新を明示的に呼び出す。
-                ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+                ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
 
                 this.Text = "ワークスペース:" + MainFile;
                 保存ToolStripMenuItem.Text = "上書き保存";
@@ -540,7 +510,7 @@ namespace PageEditor
             if (MainFile != null)
             {
                 // Documentを保存
-                DataControl.SaveXML(MainFile, document);
+                DataControl.SaveXML(MainFile, Document);
             }
             // 保存
             else
@@ -567,7 +537,7 @@ namespace PageEditor
                     System.IO.Directory.CreateDirectory(DataDirectory);
 
                     // Documentを保存
-                    DataControl.SaveXML(MainFile, document);
+                    DataControl.SaveXML(MainFile, Document);
 
                     this.Text = "ワークスペース:" + MainFile;
                     保存ToolStripMenuItem.Text = "上書き保存";
@@ -581,119 +551,43 @@ namespace PageEditor
         // シートリスト処理
         #region
 
-        /// <summary>
-        /// レイヤーリストの描画更新
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void sheetListBox_DrawItem(object sender, DrawItemEventArgs e)
+        private void SheetListBox_OnSheetAdded(object sender, SheetListBox.OnSheetAddedEventArgs e)
         {
-            if (e.Index == -1)
-                return;
+            Console.WriteLine("Sheet Added : " + e.Index.ToString());
 
-            SheetListDraw.Draw(sheetListBox.Items[e.Index] as Sheet, e);
+            // Documentの更新
+            Document.Sheets = sheetListBox.GetSeets().ToList();
         }
 
-        // シートリストのMouseUp
-        private void sheetListBox_MouseUp(object sender, MouseEventArgs e)
+        private void SheetListBox_OnSheetRenamed(object sender, SheetListBox.OnSheetRenamedEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
-            {
-                int index = sheetListBox.IndexFromPoint(sheetListBox.PointToClient(Control.MousePosition));
-
-                if (0 <= index && index < sheetListBox.Items.Count)
-                {
-                    if (sheetListBox.GetItemRectangle(index).Contains(e.Location))
-                    {
-                        sheetListBox.SelectedIndex = index;
-                        document.CurrentSheet = sheetListBox.SelectedItem as Sheet;
-                    }
-
-                    シート名の変更ToolStripMenuItem.Enabled = true;
-                }
-                else
-                {
-                    シート名の変更ToolStripMenuItem.Enabled = false;
-                }
-
-                シート削除ToolStripMenuItem.Enabled = document.Sheets.Count >= 2;
-                sheetMenu.Show(System.Windows.Forms.Cursor.Position);
-            }
+            Console.WriteLine("Sheet Name CHanged : " + e.Index.ToString() + "  " + e.BeforeName + " -> " + e.AfterName);
         }
 
-        private void 新規シートの作成ToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SheetListBox_OnSheetDeleted(object sender, SheetListBox.OnSheetDeleteEventArgs e)
         {
-            Sheet sheet = new Sheet();
-            sheet.Layers = new List<Layer>();
-            sheet.Layers.Add(new LayerFill());
-            sheet.Layers.Add(new LayerImage());
-            sheet.Layers.Add(new LayerSpeechBaloon());
-            sheet.SelectIndex = 0;
+            Console.WriteLine("Sheet Deleted : " + e.Index.ToString());
 
-            // documentに追加
-            document.Sheets.Insert(document.SelectIndex + 1, sheet);
-            document.CurrentSheet = sheet;
-
-            using (new JLUILocker())
-            {
-                // 描画更新をいったん止めて要素を更新
-                sheetListBox.BeginUpdate();
-                sheetListBox.Items.Insert(sheetListBox.SelectedIndex + 1, sheet);
-                sheetListBox.SelectedItem = document.CurrentSheet;
-                sheetListBox.EndUpdate();
-            }
-
-            ApplySheet();
-
-            // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
-        }
-
-        private void シート名の変更ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            string newName = Microsoft.VisualBasic.Interaction.InputBox("シート名を入力してください", "入力", document.CurrentSheet.Name, -1, -1);
-
-            if (string.IsNullOrEmpty(newName))
-                return;
-
-            document.CurrentSheet.Name = newName;
-        }
-
-        private void シート削除ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // document側の変更
-            // 現在レイヤの削除
-            document.Sheets.Remove(document.CurrentSheet);
-            document.SelectIndex = document.SelectIndex == 0 ? 0 : document.SelectIndex - 1;
-
-            using (new JLUILocker())
-            {
-                // 描画更新をいったん止めて要素を更新
-                sheetListBox.BeginUpdate();
-                sheetListBox.Items.RemoveAt(sheetListBox.SelectedIndex);
-                sheetListBox.SelectedItem = document.CurrentSheet;
-                sheetListBox.EndUpdate();
-            }
-
-            ApplySheet();
-
-            // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+            // Documentの更新
+            Document.Sheets = sheetListBox.GetSeets().ToList();
         }
 
         private void sheetListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            Console.WriteLine("Sheet SelectedChanged : " + sheetListBox.SelectedIndex);
+
             timer1.Stop();
 
             if (JLUILocker.IsLocked())
                 return;
 
-            document.CurrentSheet = sheetListBox.SelectedItem as Sheet;
+            // Documentの更新
+            Document.CurrentSheet = sheetListBox.SelectedItem as Sheet;
 
-            ApplySheet();
+            layerListBox.SetLayers(Document.CurrentSheet.Layers.ToArray(), Document.CurrentSheet.CurrentLayer);
 
             // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.NONE);
+            ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
         }
 
         #endregion
@@ -702,107 +596,24 @@ namespace PageEditor
         // レイヤーリスト処理
         #region
 
-        /// <summary>
-        /// レイヤーリストの描画更新
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void layerListBox_DrawItem(object sender, DrawItemEventArgs e)
+        private void LayerListBox_OnLayerVisibleChanged(object sender, LayerListBox.OnLayerVisibleChangedEventArgs e)
         {
-            if (e.Index == -1)
-                return;
-
-            // 対象レイヤの描画処理を呼び出す。
-            LayerListDraw.Draw(layerListBox.Items[e.Index] as Layer, e);
+             // 描画更新を明示的に呼び出す。
+            ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
         }
 
-        private void layerListBox_MouseDown(object sender, MouseEventArgs e)
+        private void LayerListBox_OnLayerAdded(object sender, LayerListBox.OnLayerAddedEventArgs e)
         {
-            int index = layerListBox.IndexFromPoint(layerListBox.PointToClient(Control.MousePosition));
+            Console.WriteLine("Layer Added : " + e.Index.ToString());
 
-            if (0 <= index && index < layerListBox.Items.Count)
-            {
-                if (layerListBox.GetItemRectangle(index).Contains(e.Location))
-                {
-                    Layer toLayer = layerListBox.Items[index] as Layer;
-
-                    if (e.Button == MouseButtons.Left && e.X < 29)
-                    {
-                        toLayer.Visible = !toLayer.Visible;
-
-                        // 表示更新
-                        layerListBox.Invalidate(layerListBox.GetItemRectangle(index));
-
-                        // 描画更新を明示的に呼び出す。
-                        ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
-                    }
-
-                    if (toLayer != document.CurrentSheet.CurrentLayer)
-                    {
-                        layerListBox.SelectedIndex = index;
-                        document.CurrentSheet.CurrentLayer = layerListBox.SelectedItem as Layer;
-                    }
-                }
-            }
+            Document.CurrentSheet.Layers = layerListBox.GetLayers().ToList();
         }
 
-        // レイヤーリストのMouseUp
-        private void layerListBox_MouseUp(object sender, MouseEventArgs e)
+        private void LayerListBox_OnLayerDeleted(object sender, LayerListBox.OnLayerDeleteEventArgs e)
         {
-            if (e.Button == MouseButtons.Right && e.X > 29)
-            {
-                レイヤ削除ToolStripMenuItem.Enabled = document.CurrentSheet.Layers.Count >= 2;
-                layerMenu.Show(System.Windows.Forms.Cursor.Position);
-            }
-        }
+            Console.WriteLine("Layer Deleted : " + e.Index.ToString());
 
-        private void レイヤ削除ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // document側の変更
-            // 現在レイヤの削除
-            document.CurrentSheet.Layers.Remove(document.CurrentSheet.CurrentLayer);
-            document.CurrentSheet.SelectIndex = document.CurrentSheet.SelectIndex == 0 ? 0 : document.CurrentSheet.SelectIndex - 1;
-
-            using (new JLUILocker())
-            {
-                // 描画更新をいったん止めて要素を更新
-                layerListBox.BeginUpdate();
-                layerListBox.Items.RemoveAt(layerListBox.SelectedIndex);
-                layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
-                layerListBox.EndUpdate();
-            }
-
-            // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
-        }
-
-        private void 新規レイヤToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToolStripMenuItem item = sender as ToolStripMenuItem;
-
-            if (item.Tag == null)
-                return;
-
-            Layer layer = (Layer)Activator.CreateInstance((Type)item.Tag);
-
-            if (layer == null)
-                return;
-
-            // documentに追加
-            document.CurrentSheet.Layers.Insert(document.CurrentSheet.SelectIndex + 1, layer);
-            document.CurrentSheet.CurrentLayer = layer;
-
-            using (new JLUILocker())
-            {
-                // 描画更新をいったん止めて要素を更新
-                layerListBox.BeginUpdate();
-                layerListBox.Items.Insert(layerListBox.SelectedIndex, layer);
-                layerListBox.SelectedItem = document.CurrentSheet.CurrentLayer;
-                layerListBox.EndUpdate();
-            }
-
-            // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+            Document.CurrentSheet.Layers = layerListBox.GetLayers().ToList();
         }
 
         /// <summary>
@@ -815,23 +626,25 @@ namespace PageEditor
             if (layerListBox.SelectedItem == null)
                 return;
 
+            Document.CurrentSheet.CurrentLayer = layerListBox.SelectedItem as Layer;
+
             switch (layerListBox.SelectedItem.GetType().Name)
             {
                 case "LayerFill":
                     helpLabel.Text = "tips:画面上左クリックで色選択ウィンドウが表示されます。";
-                    imageListListBox.Items.Clear();
+                    imageListListBox.ClearImages();
                     imageListListBox.Enabled = false;
                     break;
 
                 case "LayerImage":
                     helpLabel.Text = "tips:画面上左クリックでファイル選択ウィンドウが表示されます。";
-                    imageListListBox.Items.Clear();
+                    imageListListBox.ClearImages();
                     imageListListBox.Enabled = false;
                     break;
 
                 case "LayerSpeechBaloon":
                     helpLabel.Text = "tips:左クリックで新規作成、吹き出し左ドラッグで移動、吹き出し左クリックで編集、右クリックで一括追加用のメニューが表示されます。";
-                    imageListListBox.Items.Clear();
+                    imageListListBox.ClearImages();
                     imageListListBox.Enabled = false;
                     break;
 
@@ -840,182 +653,47 @@ namespace PageEditor
                     {
                         LayerImageList layer = layerListBox.SelectedItem as LayerImageList;
 
-                        using (new JLUILocker())
-                        {
-                            imageListListBox.SuspendLayout();
-                            imageListListBox.Items.Clear();
-                            for (int i = -1; i < layer.ImageItems.Count; i++)
-                            {
-                                imageListListBox.Items.Add(i.ToString());
-                            }
-                            imageListListBox.SelectedIndex = layer.SelectedIndex + 1;
-                            imageListListBox.ResumeLayout();
-                            imageListListBox.Enabled = true;
-                        }
+                        imageListListBox.SetImages(layer.ImageItems.ToArray(), layer.CurrentImage);
+                        imageListListBox.Enabled = true;
                     }
                     break;
             }
-
-            document.CurrentSheet.CurrentLayer = layerListBox.SelectedItem as Layer;
         }
 
         #endregion
 
+        //---------------------------------------------------------------------------------------------------------
+        // イメージリスト処理
         #region
 
+        private void ImageListListBox_OnImageAdded(object sender, ImageListBox.OnImageAddedEventArgs e)
+        {
+            Console.WriteLine("Image Added : " + e.Index.ToString());
+
+            // Documentの更新
+            LayerImageList layer = Document.CurrentSheet.CurrentLayer as LayerImageList;
+            layer.ImageItems = imageListListBox.GetImages().ToList();
+        }
+
+        private void ImageListListBox_OnImageDeleted(object sender, ImageListBox.OnImageDeleteEventArgs e)
+        {
+            Console.WriteLine("Image Deleted : " + e.Index.ToString());
+
+            // Documentの更新
+            LayerImageList layer = Document.CurrentSheet.CurrentLayer as LayerImageList;
+            layer.ImageItems = imageListListBox.GetImages().ToList();
+        }
+
+        private void imageListListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LayerImageList layer = Document.CurrentSheet.CurrentLayer as LayerImageList;
+            layer.CurrentImage = imageListListBox.SelectedItem as ImageItem;
+
+            // 描画更新を明示的に呼び出す。
+            ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
+            layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
+        }
+
         #endregion
-
-        private void listBox1_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            e.DrawBackground();
-            e.Graphics.DrawRectangle(Pens.Gray, e.Bounds);
-
-            if (e.Index == 0)
-            {
-                Pen pen = new Pen(Brushes.Gray, 2);
-
-                e.Graphics.DrawLine(pen, e.Bounds.Left + 20, e.Bounds.Top + 20, e.Bounds.Right - 20, e.Bounds.Bottom - 20);
-                e.Graphics.DrawLine(pen, e.Bounds.Left + 20, e.Bounds.Bottom - 20, e.Bounds.Right - 20, e.Bounds.Top + 20);
-            }
-            else
-            {
-                LayerImageList layer = document.CurrentSheet.CurrentLayer as LayerImageList;
-
-                if (0 <= e.Index - 1 && e.Index - 1 < layer.ImageItems.Count)
-                {
-                    ImageItem item = layer.ImageItems[e.Index - 1];
-
-                    Image image = PictureControl.GetThumbImage(item.FileName);
-                    if (image != null)
-                        e.Graphics.DrawImage(image, new Rectangle(e.Bounds.Left + 2, e.Bounds.Top + 2, e.Bounds.Width - 4, e.Bounds.Height - 4));
-                }
-            }
-        }
-
-        private void imageListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (JLUILocker.IsLocked())
-                return;
-
-            LayerImageList layer = document.CurrentSheet.CurrentLayer as LayerImageList;
-            layer.SelectedIndex = imageListListBox.SelectedIndex - 1;
-
-            // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
-            layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
-        }
-
-        private void imageListListBox_MouseUp(object sender, MouseEventArgs e)
-        {
-            int index = imageListListBox.IndexFromPoint(imageListListBox.PointToClient(Control.MousePosition));
-
-            if (0 <= index && index < imageListListBox.Items.Count)
-            {
-                if (imageListListBox.GetItemRectangle(index).Contains(e.Location))
-                {
-                    LayerImageList layer = document.CurrentSheet.CurrentLayer as LayerImageList;
-
-                    imageListListBox.SelectedIndex = index;
-                    // Documentの更新はChangedEventの中で処理
-
-                    if (e.Button == MouseButtons.Right)
-                    {
-                        ImageListItem削除ToolStripMenuItem.Enabled = index != 0;
-                        ImageListItem削除ToolStripMenuItem.Tag = index;
-                        imageListOnItemMenu.Show(Cursor.Position);
-                    }
-
-                    return;
-                }
-            }
-
-            // 範囲外クリック
-            if (e.Button == MouseButtons.Right)
-            {
-                imageListOnSpaceMenu.Show(Cursor.Position);
-            }
-        }
-
-        private void ImageListItem削除ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ToolStripMenuItem item = sender as ToolStripMenuItem;
-
-            using (new JLUILocker())
-            {
-                // 描画更新をいったん止めて要素を更新
-                imageListListBox.BeginUpdate();
-                imageListListBox.Items.RemoveAt((int)item.Tag);
-                LayerImageList layer = document.CurrentSheet.CurrentLayer as LayerImageList;
-                layer.SelectedIndex = -1;
-                layer.ImageItems.RemoveAt((int)item.Tag - 1);
-                imageListListBox.EndUpdate();
-            }
-
-            // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
-            layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
-        }
-
-        private void ImageListItem追加ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MainForm.DataDirectory == null)
-            {
-                MessageBox.Show("画像ファイルを指定する際は先にワークスペースを保存してください。", "メッセージ", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            // OpenFileDialog
-            OpenFileDialog ofd = new OpenFileDialog();
-
-            // はじめに表示されるフォルダを指定する
-            ofd.InitialDirectory = MainForm.DataDirectory;
-
-            // フィルター
-            ofd.Filter = "イメージファイル(*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png|すべてのファイル(*.*)|*.*";
-
-            // タイトル
-            ofd.Title = "画像ファイルを選択してください";
-
-            // ダイアログボックスを閉じる前に現在のディレクトリを復元するようにする
-            ofd.RestoreDirectory = true;
-
-            // ダイアログを表示する
-            if (ofd.ShowDialog() != DialogResult.OK)
-            {
-                return;
-            }
-
-            // 選択されたファイルを設定
-            string relative = MainForm.GetRelative(ofd.FileName);
-
-            // 画像サイズを取得
-            Image image = PictureControl.Load(relative);
-
-            // 失敗
-            if (image == null)
-            {
-                MessageBox.Show("画像ファイルを開けませんでした。", "メッセージ", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            ImageItem item = new ImageItem();
-            item.SetZoom(relative, document.Width, document.Height, image);
-
-            using (new JLUILocker())
-            {
-                // 描画更新をいったん止めて要素を更新
-                imageListListBox.BeginUpdate();
-                LayerImageList layer = document.CurrentSheet.CurrentLayer as LayerImageList;
-                layer.ImageItems.Add(item);
-                layer.SelectedIndex = layer.ImageItems.Count - 1;
-                imageListListBox.Items.Add("");
-                imageListListBox.SelectedIndex = imageListListBox.Items.Count - 1;
-                imageListListBox.EndUpdate();
-            }
-
-            // 描画更新を明示的に呼び出す。
-            ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
-            layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
-        }
     }
 }

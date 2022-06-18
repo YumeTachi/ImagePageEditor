@@ -152,7 +152,7 @@ namespace PageEditor
             // タイマー停止
             timer1.Stop();
 
-            MainForm.GetInstance().ImageUpdate(ImageOperation.UpdateType.IMMEDIATELY);
+            MainForm.GetInstance().ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
         }
 
         private void TextEditer_KeyDown(object sender, KeyEventArgs e)

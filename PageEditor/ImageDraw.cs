@@ -236,7 +236,7 @@ namespace PageEditor
         }
 
         /// <summary>
-        /// イメージバッファレイヤーを描画します。
+        /// イメージリストレイヤーを描画します。
         /// </summary>
         /// <param name="layer"></param>
         /// <param name="g"></param>
@@ -244,7 +244,7 @@ namespace PageEditor
         /// <param name="height"></param>
         private static void DrawLayerImageList(LayerImageList layer, Graphics g, int width, int height)
         {
-            ImageItem info = layer.GetInfo();
+            ImageItem info = layer.CurrentImage;
 
             if (info == null)
                 return;

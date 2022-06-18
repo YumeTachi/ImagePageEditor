@@ -305,6 +305,10 @@ namespace PageEditor
     [Serializable]
     public class ImageItem
     {
+        [XmlIgnore]
+        [IgnoreDataMember]
+        static public ImageItem Empty = new ImageItem();
+
         /// <summary>ファイル名</summary>
         [XmlAttribute]
         public string FileName;
@@ -368,12 +372,28 @@ namespace PageEditor
         }
 
         // 情報取得
-        internal ImageItem GetInfo()
+        [XmlIgnore]
+        [IgnoreDataMember]
+        internal ImageItem CurrentImage
         {
-            if (SelectedIndex < 0 || ImageItems.Count <= SelectedIndex)
-                return null;
+            get
+            {
+                if (SelectedIndex < 0)
+                    return ImageItem.Empty;
 
-            return ImageItems[SelectedIndex];
+                return ImageItems[SelectedIndex];
+            }
+            set
+            {
+                if (value == ImageItem.Empty)
+                {
+                    SelectedIndex = -1;
+                    return;
+                }
+
+                SelectedIndex = ImageItems.FindIndex(a => a == value);
+                System.Diagnostics.Debug.Assert(SelectedIndex != -1);
+            }
         }
     }
     
