@@ -50,6 +50,20 @@ namespace PageEditor
         [Category("動作")]
         public event EventHandler<OnLayerDeleteEventArgs> OnLayerDeleted;
 
+        /// <summary>
+        /// レイヤ並び替えイベント発生時の引数
+        /// </summary>
+        public class OnLayerOrderChangedEventArgs : EventArgs
+        {
+            public int OldIndex = -1;
+            public int NewIndex = -1;
+        }
+
+        [Browsable(true)]
+        [Description("レイヤの順序が変更されたときに発生するイベントです")]
+        [Category("動作")]
+        public event EventHandler<OnLayerOrderChangedEventArgs> OnLayerOrderChanged;
+
 
 
         // TODO:DefaultValueの設定
@@ -70,6 +84,9 @@ namespace PageEditor
         {
             // ダブルバッファ有効
             DoubleBuffered = true;
+
+            // DragDrop可能
+            AllowDrop = true;
 
             // 枠線用ペン
             LinePen = new Pen(Brushes.Black, 2.0f);
@@ -235,15 +252,21 @@ namespace PageEditor
             // 戻り値用
             Layer[] retValue = new Layer[Items.Count];
             for (int i = Items.Count - 1; i >= 0; i--)
-                retValue[i] = Items[i] as Layer;
+                retValue[Items.Count - 1 - i] = Items[i] as Layer;
 
             return retValue;
         }
-        
+
+        private Point mouseLeftDownPoint = Point.Empty;
+        private int mouseLeftDownIndex = -1;
+
         // マウスダウン
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            int index = IndexFromPoint(PointToClient(Control.MousePosition));
+            mouseLeftDownPoint = Point.Empty;
+            mouseLeftDownIndex = -1;
+
+            int index = IndexFromPoint(e.Location);
 
             if (0 <= index && index < Items.Count)
             {
@@ -261,6 +284,12 @@ namespace PageEditor
                         // イベント発行
                         OnLayerVisibleChanged(this, new OnLayerVisibleChangedEventArgs() { Index = index, beforeVisible = !toLayer.Visible });
                     }
+
+                    if (e.Button == MouseButtons.Left && e.X > 29)
+                    {
+                        mouseLeftDownPoint = new Point(e.X, e.Y);
+                        mouseLeftDownIndex = index;
+                    }
                 }
             }
 
@@ -270,12 +299,101 @@ namespace PageEditor
         // マウス移動
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            if (mouseLeftDownPoint != Point.Empty && mouseLeftDownIndex != -1)
+            {
+                //ドラッグとしないマウスの移動範囲を取得する
+                Rectangle moveRect = new Rectangle(
+                    mouseLeftDownPoint.X - SystemInformation.DragSize.Width / 2,
+                    mouseLeftDownPoint.Y - SystemInformation.DragSize.Height / 2,
+                    SystemInformation.DragSize.Width,
+                    SystemInformation.DragSize.Height);
+
+                //ドラッグとする移動範囲を超えたか調べる
+                if (!moveRect.Contains(e.X, e.Y))
+                {
+                    DoDragDrop(mouseLeftDownIndex, DragDropEffects.Move);    //ドラッグスタート
+
+                    mouseLeftDownPoint = Point.Empty;
+                    mouseLeftDownIndex = -1;
+                }
+            }
+
             base.OnMouseMove(e);
+        }
+
+        // ドラッグ開始
+        protected override void OnDragEnter(DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
+        
+            base.OnDragEnter(e);
+        }
+
+        // 並び替え
+        protected override void OnDragDrop(DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(typeof(int)))
+            {
+                Point location = PointToClient(new Point(e.X, e.Y));
+
+                // ドロップされたデータ
+                int sourceIndex = (int)e.Data.GetData(typeof(int));
+
+                // ドロップ先
+                // これは行き先を決めるもので出力ではない。
+                int targetIndex = IndexFromPoint(location);
+
+                // -1になるのは範囲外なので一番後ろ
+                if (targetIndex == -1)
+                {
+                    targetIndex = Items.Count;
+                }
+                else
+                {
+                    // 箱の下半分の場合は次の場所に配置する。
+                    Rectangle itemRectangle = GetItemRectangle(targetIndex);
+                    if (location.Y >= (itemRectangle.Top + itemRectangle.Bottom) / 2)
+                    {
+                        targetIndex++;
+                    }
+                }
+
+                // 調整
+                if (sourceIndex <= targetIndex)
+                {
+                    targetIndex--;
+                }
+
+                // 行き先と違う場合
+                if (sourceIndex != targetIndex)
+                {
+                    object source = Items[sourceIndex];
+                
+                    using (new EventLocker())
+                    {
+                        // 元のツリーから削除
+                        Items.Remove(source);
+
+                        // Nodeを追加
+                        Items.Insert(targetIndex, source);
+                    }
+
+                    // 移動イベント発行
+                    OnLayerOrderChanged(this, new OnLayerOrderChangedEventArgs() { OldIndex = sourceIndex, NewIndex = targetIndex });
+                
+                    SelectedItem = source;
+                }
+            }
+
+            base.OnDragDrop(e);
         }
 
         // マウスアップ
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            mouseLeftDownPoint = Point.Empty;
+            mouseLeftDownIndex = -1;
+
             if (e.Button == MouseButtons.Right)
             {
                 // メニュー
@@ -299,7 +417,7 @@ namespace PageEditor
                 contextMenuStrip.Items.Add("-");
                 contextMenuStrip.Items.Add(onDelete);
 
-                int index = IndexFromPoint(PointToClient(Control.MousePosition));
+                int index = IndexFromPoint(e.Location);
                 if (0 <= index && index < Items.Count)
                 {
                     if (GetItemRectangle(index).Contains(e.Location))

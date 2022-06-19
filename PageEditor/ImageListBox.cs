@@ -172,7 +172,7 @@ namespace PageEditor
         {
             if (e.Button == MouseButtons.Right)
             {
-                int index = IndexFromPoint(PointToClient(Control.MousePosition));
+                int index = IndexFromPoint(e.Location);
                 if (0 <= index && index < Items.Count)
                 {
                     if (GetItemRectangle(index).Contains(e.Location))

@@ -66,10 +66,12 @@ namespace PageEditor
             sheetListBox.OnSheetAdded += SheetListBox_OnSheetAdded;
             sheetListBox.OnSheetRenamed += SheetListBox_OnSheetRenamed;
             sheetListBox.OnSheetDeleted += SheetListBox_OnSheetDeleted;
+            sheetListBox.OnSheetOrderChanged += SheetListBox_OnSheetOrderChanged;
 
             layerListBox.OnLayerVisibleChanged += LayerListBox_OnLayerVisibleChanged;
             layerListBox.OnLayerAdded += LayerListBox_OnLayerAdded;
             layerListBox.OnLayerDeleted += LayerListBox_OnLayerDeleted;
+            layerListBox.OnLayerOrderChanged += LayerListBox_OnLayerOrderChanged;
 
             imageListListBox.OnImageAdded += ImageListListBox_OnImageAdded;
             imageListListBox.OnImageDeleted += ImageListListBox_OnImageDeleted;
@@ -566,7 +568,7 @@ namespace PageEditor
 
         private void SheetListBox_OnSheetRenamed(object sender, SheetListBox.OnSheetRenamedEventArgs e)
         {
-            Console.WriteLine("Sheet Name CHanged : " + e.Index.ToString() + "  " + e.BeforeName + " -> " + e.AfterName);
+            Console.WriteLine("Sheet Name Changed : " + e.Index.ToString() + "  " + e.BeforeName + " -> " + e.AfterName);
         }
 
         private void SheetListBox_OnSheetDeleted(object sender, SheetListBox.OnSheetDeleteEventArgs e)
@@ -577,10 +579,16 @@ namespace PageEditor
             Document.Sheets = sheetListBox.GetSeets().ToList();
         }
 
+        private void SheetListBox_OnSheetOrderChanged(object sender, SheetListBox.OnSheetOrderChangedEventArgs e)
+        {
+            Console.WriteLine("Sheet Order Changed : " + e.OldIndex.ToString() + " -> " + e.NewIndex.ToString());
+
+            // Documentの更新
+            Document.Sheets = sheetListBox.GetSeets().ToList();
+        }
+
         private void sheetListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Console.WriteLine("Sheet SelectedChanged : " + sheetListBox.SelectedIndex);
-
             timer1.Stop();
 
             if (JLUILocker.IsLocked())
@@ -619,6 +627,17 @@ namespace PageEditor
             Console.WriteLine("Layer Deleted : " + e.Index.ToString());
 
             Document.CurrentSheet.Layers = layerListBox.GetLayers().ToList();
+        }
+
+        private void LayerListBox_OnLayerOrderChanged(object sender, LayerListBox.OnLayerOrderChangedEventArgs e)
+        {
+            Console.WriteLine("Layer Order Changed : " + e.OldIndex.ToString() + " -> " + e.NewIndex.ToString());
+
+            Document.CurrentSheet.Layers = layerListBox.GetLayers().ToList();
+
+            // IndexChangedでは再描画されないのでここで再描画
+            // 描画更新を明示的に呼び出す。
+            ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
         }
 
         /// <summary>
