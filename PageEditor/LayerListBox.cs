@@ -331,6 +331,16 @@ namespace PageEditor
             if (layer == null)
                 return;
 
+            // 挿入
+            Insert(layer);
+        }
+
+        /// <summary>
+        /// 追加
+        /// </summary>
+        /// <param name="layer"></param>
+        public void Insert(Layer layer)
+        {
             using (new EventLocker())
             {
                 Items.Insert(SelectedIndex, layer);

@@ -201,7 +201,7 @@ namespace PageEditor
                 if (e.Button == MouseButtons.Right)
                 {
                     // メニュー
-                    ToolStripMenuItem onAdd = new ToolStripMenuItem() { Text = "シート追加", Enabled = true };
+                    ToolStripMenuItem onAdd = new ToolStripMenuItem() { Text = "イメージ追加", Enabled = true };
                     onAdd.Click += OnAdd_Click; ;
 
                     ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
@@ -258,13 +258,23 @@ namespace PageEditor
             ImageItem item = new ImageItem();
             item.SetZoom(relative, MainForm.GetInstance().Document.Width, MainForm.GetInstance().Document.Height, image.Picture);
 
+            // 追加本体
+            Add(item);
+        }
+
+        /// <summary>
+        /// 追加
+        /// </summary>
+        /// <param name="item"></param>
+        public void Add(ImageItem item)
+        {
             using (new EventLocker())
             {
-                Items.Insert(SelectedIndex, item);
+                Items.Add(item);
             }
 
             // 追加イベントを先に発行
-            OnImageAdded(this, new OnImageAddedEventArgs() { Index = SelectedIndex, AddedImage = item });
+            OnImageAdded(this, new OnImageAddedEventArgs() { Index = Items.Count - 1, AddedImage = item });
 
             // 選択シート変更
             SelectedItem = item;
@@ -290,6 +300,7 @@ namespace PageEditor
             SelectedIndex = newSelectedIndex;
             EndUpdate();
         }
+
 
         protected override void OnSelectedIndexChanged(EventArgs e)
         {

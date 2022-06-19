@@ -186,47 +186,32 @@ namespace PageEditor
                             // ImageList選択中の場合はそちらに張り付け
                             if (Document.CurrentSheet.CurrentLayer is LayerImageList)
                             {
+                                // 設定は以下のシーケンスで行う。
+                                // (1)ImageItemの生成
+                                // (2)ImageListBoxに追加
+                                // -------------------------ここまでがこの部分での処理
+                                // (3)ImageListBoxからAddedイベントの発行→Documentに反映
+                                // (4)ImageListBoxからIndexChangedイベントの発行→Document/描画に反映
+
                                 ImageItem item = new ImageItem();
                                 item.SetZoom(GetRelativePath(fullPath), Document.Width, Document.Height, image);
 
-                                using (new JLUILocker())
-                                {
-                                    // 描画更新をいったん止めて要素を更新
-                                    imageListListBox.BeginUpdate();
-                                    LayerImageList layer = Document.CurrentSheet.CurrentLayer as LayerImageList;
-                                    layer.ImageItems.Add(item);
-                                    layer.SelectedIndex = layer.ImageItems.Count - 1;
-                                    imageListListBox.Items.Add("");
-                                    imageListListBox.SelectedIndex = imageListListBox.Items.Count - 1;
-                                    imageListListBox.EndUpdate();
-                                }
-
-                                // 描画更新を明示的に呼び出す。
-                                ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
-                                layerListBox.Invalidate(layerListBox.GetItemRectangle(layerListBox.SelectedIndex));
+                                imageListListBox.Add(item);
                             }
                             else
                             {
+                                // 設定は以下のシーケンスで行う。
+                                // (1)LayerImageの生成
+                                // (2)LayerListBoxに追加
+                                // -------------------------ここまでがこの部分での処理
+                                // (3)LayerListBoxからAddedイベントの発行→Documentに反映
+                                // (4)LayerListBoxからIndexChangedイベントの発行→Document/描画に反映
+
                                 LayerImage layerImage = new LayerImage();
-
-                                // documentに追加
-                                Document.CurrentSheet.Layers.Insert(Document.CurrentSheet.SelectIndex + 1, layerImage);
-                                Document.CurrentSheet.CurrentLayer = layerImage;
-
                                 layerImage.SetZoom(GetRelativePath(fullPath), Document.Width, Document.Height, image);
 
-                                using (new JLUILocker())
-                                {
-                                    // 描画更新をいったん止めて要素を更新
-                                    layerListBox.BeginUpdate();
-                                    layerListBox.Items.Insert(layerListBox.SelectedIndex, layerImage);
-                                    layerListBox.SelectedItem = Document.CurrentSheet.CurrentLayer;
-                                    layerListBox.EndUpdate();
-                                }
+                                layerListBox.Insert(layerImage);
                             }
-
-                            // 描画更新を明示的に呼び出す。
-                            ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
                         }
                     }
                 }
