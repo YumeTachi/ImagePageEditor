@@ -310,7 +310,7 @@ namespace PageEditor
                 string relative = MainForm.GetInstance().GetRelativePath(ofd.FileName);
 
                 // 画像サイズを取得
-                Image image = PictureControl.Load(relative);
+                PictureControl.PictureInfo image = MainForm.GetInstance().Pictures.Load(relative);
 
                 // 失敗
                 if (image == null)
@@ -319,7 +319,7 @@ namespace PageEditor
                     return ThumbnailUpdateType.NONE;
                 }
 
-                layerImage.SetZoom(relative, document.Width, document.Height, image);
+                layerImage.SetZoom(relative, document.Width, document.Height, image.Picture);
 
                 return ThumbnailUpdateType.IMMEDIATELY;
             }

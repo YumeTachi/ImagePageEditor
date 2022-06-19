@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace PageEditor
 {
-    static class PictureControl
+    class PictureControl
     {
         private const int THUMBNAIL_SIZE = 20;
 
-        class PictureInfo
+        internal class PictureInfo
         {
             public Image Picture;
             public Image ThumbImage;
@@ -22,39 +22,14 @@ namespace PageEditor
         /// <summary>
         /// Pictureファイルリスト
         /// </summary>
-        static private Dictionary<string, PictureInfo> PictureInfos = new Dictionary<string, PictureInfo>();
+        private Dictionary<string, PictureInfo> PictureInfos = new Dictionary<string, PictureInfo>();
 
         /// <summary>
-        /// Imageの取得
+        /// 情報読み込み
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="relativeFileName"></param>
         /// <returns></returns>
-        public static Image Load(string relativeFileName)
-        {
-            PictureInfo pi = LoadInfo(relativeFileName);
-
-            if (pi == null)
-                return null;
-
-            return pi.Picture;
-        }
-
-        /// <summary>
-        /// サムネイルの取得
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        internal static Image GetThumbImage(string relativeFileName)
-        {
-            PictureInfo pi = LoadInfo(relativeFileName);
-
-            if (pi == null)
-                return null;
-
-            return pi.ThumbImage;
-        }
-
-        private static PictureInfo LoadInfo(string relativeFileName)
+        internal PictureInfo Load(string relativeFileName)
         {
             // 引数異常
             if (relativeFileName == null)
@@ -116,6 +91,24 @@ namespace PageEditor
         }
 
         /// <summary>
+        /// すでにOpen済みの画像ファイルを追加します。クリップボードから用
+        /// </summary>
+        /// <param name="relativeFileName"></param>
+        /// <param name="image"></param>
+        internal void Add(string fullPath, Image image)
+        {
+            DateTime dateTime = System.IO.File.GetLastWriteTime(fullPath);
+
+            // 画像を登録する
+            PictureInfo pi = new PictureInfo();
+            pi.Update = dateTime;
+            pi.Picture = image;
+            pi.ThumbImage = CreateThumbnail(pi.Picture);
+
+            PictureInfos.Add(fullPath, pi);
+        }
+
+        /// <summary>
         /// Lockしない画像読み込み
         /// </summary>
         /// <param name="fullPath"></param>
@@ -139,29 +132,11 @@ namespace PageEditor
         }
 
         /// <summary>
-        /// すでにOpen済みの画像ファイルを追加します。クリップボードから用
-        /// </summary>
-        /// <param name="relativeFileName"></param>
-        /// <param name="image"></param>
-        internal static void Add(string fullPath, Image image)
-        {
-            DateTime dateTime = System.IO.File.GetLastWriteTime(fullPath);
-
-            // 画像を登録する
-            PictureInfo pi = new PictureInfo();
-            pi.Update = dateTime;
-            pi.Picture = image;
-            pi.ThumbImage = CreateThumbnail(pi.Picture);
-
-            PictureInfos.Add(fullPath, pi);
-        }
-
-        /// <summary>
         /// サムネイル画像の生成
         /// </summary>
         /// <param name="image"></param>
         /// <returns></returns>
-        internal static Image CreateThumbnail(Image image)
+        private static Image CreateThumbnail(Image image)
         {
             return image.GetThumbnailImage(THUMBNAIL_SIZE, THUMBNAIL_SIZE, delegate { return false; }, IntPtr.Zero);
         }

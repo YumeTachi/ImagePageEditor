@@ -83,6 +83,57 @@ namespace PageEditor
         }
 
         /// <summary>
+        /// 塗りつぶしレイヤーを描画します。
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="g"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        private static void DrawLayerFill(LayerFill layer, Graphics g, int width, int height)
+        {
+            Brush brush = new SolidBrush(layer.BackColor);
+            g.FillRectangle(brush, new RectangleF(0, 0, width, height));
+        }
+
+        /// <summary>
+        /// 画像レイヤーを描画します。
+        /// </summary>
+        /// <param name="layer"></param>
+        /// <param name="g"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        private static void DrawLayerImage(LayerImage layer, Graphics g, int width, int height)
+        {
+            // 画像コントローラから画像データ取得
+            PictureControl.PictureInfo image = MainForm.GetInstance().Pictures.Load(layer.FileName);
+
+            // 画像データがあれば描画する。
+            if (image != null)
+            {
+                if (layer.Angle == 0)
+                {
+                    g.DrawImage(image.Picture, new RectangleF(layer.X - image.Picture.Width * layer.Scale / 2.0f, layer.Y - image.Picture.Height * layer.Scale / 2.0f, image.Picture.Width * layer.Scale, image.Picture.Height * layer.Scale));
+                }
+                else
+                {
+                    PointF p0 = new PointF(-image.Picture.Width / 2.0f * layer.Scale, -image.Picture.Height / 2.0f * layer.Scale);
+                    PointF p1 = new PointF(+image.Picture.Width / 2.0f * layer.Scale, -image.Picture.Height / 2.0f * layer.Scale);
+                    PointF p2 = new PointF(-image.Picture.Width / 2.0f * layer.Scale, +image.Picture.Height / 2.0f * layer.Scale);
+
+                    float cos = (float)Math.Cos(layer.Angle / 180.0 * Math.PI);
+                    float sin = (float)Math.Sin(layer.Angle / 180.0 * Math.PI);
+
+                    g.DrawImage(image.Picture, new PointF[] 
+                    {
+                        new PointF(p0.X * cos - p0.Y * sin + layer.X, p0.X * sin + p0.Y * cos + layer.Y),
+                        new PointF(p1.X * cos - p1.Y * sin + layer.X, p1.X * sin + p1.Y * cos + layer.Y),
+                        new PointF(p2.X * cos - p2.Y * sin + layer.X, p2.X * sin + p2.Y * cos + layer.Y),
+                    });
+                }
+            }
+        }
+
+        /// <summary>
         /// 吹き出しレイヤを描画します。
         /// </summary>
         /// <param name="layerSpeechBaloon"></param>
@@ -185,57 +236,6 @@ namespace PageEditor
         }
 
         /// <summary>
-        /// 塗りつぶしレイヤーを描画します。
-        /// </summary>
-        /// <param name="layer"></param>
-        /// <param name="g"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        private static void DrawLayerFill(LayerFill layer, Graphics g, int width, int height)
-        {
-            Brush brush = new SolidBrush(layer.BackColor);
-            g.FillRectangle(brush, new RectangleF(0, 0, width, height));
-        }
-
-        /// <summary>
-        /// 画像レイヤーを描画します。
-        /// </summary>
-        /// <param name="layer"></param>
-        /// <param name="g"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        private static void DrawLayerImage(LayerImage layer, Graphics g, int width, int height)
-        {
-            // 画像コントローラから画像データ取得
-            Image image = PictureControl.Load(layer.FileName);
-
-            // 画像データがあれば描画する。
-            if (image != null)
-            {
-                if (layer.Angle == 0)
-                {
-                    g.DrawImage(image, new RectangleF(layer.X - image.Width * layer.Scale / 2.0f, layer.Y - image.Height * layer.Scale / 2.0f, image.Width * layer.Scale, image.Height * layer.Scale));
-                }
-                else
-                {
-                    PointF p0 = new PointF(-image.Width / 2.0f * layer.Scale, -image.Height / 2.0f * layer.Scale);
-                    PointF p1 = new PointF(+image.Width / 2.0f * layer.Scale, -image.Height / 2.0f * layer.Scale);
-                    PointF p2 = new PointF(-image.Width / 2.0f * layer.Scale, +image.Height / 2.0f * layer.Scale);
-
-                    float cos = (float)Math.Cos(layer.Angle / 180.0 * Math.PI);
-                    float sin = (float)Math.Sin(layer.Angle / 180.0 * Math.PI);
-
-                    g.DrawImage(image, new PointF[] 
-                    {
-                        new PointF(p0.X * cos - p0.Y * sin + layer.X, p0.X * sin + p0.Y * cos + layer.Y),
-                        new PointF(p1.X * cos - p1.Y * sin + layer.X, p1.X * sin + p1.Y * cos + layer.Y),
-                        new PointF(p2.X * cos - p2.Y * sin + layer.X, p2.X * sin + p2.Y * cos + layer.Y),
-                    });
-                }
-            }
-        }
-
-        /// <summary>
         /// イメージリストレイヤーを描画します。
         /// </summary>
         /// <param name="layer"></param>
@@ -250,25 +250,25 @@ namespace PageEditor
                 return;
 
             // 画像コントローラから画像データ取得
-            Image image = PictureControl.Load(info.FileName);
+            PictureControl.PictureInfo image = MainForm.GetInstance().Pictures.Load(info.FileName);
 
             // 画像データがあれば描画する。
             if (image != null)
             {
                 if (info.Angle == 0)
                 {
-                    g.DrawImage(image, new RectangleF(info.X - image.Width * info.Scale / 2.0f, info.Y - image.Height * info.Scale / 2.0f, image.Width * info.Scale, image.Height * info.Scale));
+                    g.DrawImage(image.Picture, new RectangleF(info.X - image.Picture.Width * info.Scale / 2.0f, info.Y - image.Picture.Height * info.Scale / 2.0f, image.Picture.Width * info.Scale, image.Picture.Height * info.Scale));
                 }
                 else
                 {
-                    PointF p0 = new PointF(-image.Width / 2.0f * info.Scale, -image.Height / 2.0f * info.Scale);
-                    PointF p1 = new PointF(+image.Width / 2.0f * info.Scale, -image.Height / 2.0f * info.Scale);
-                    PointF p2 = new PointF(-image.Width / 2.0f * info.Scale, +image.Height / 2.0f * info.Scale);
+                    PointF p0 = new PointF(-image.Picture.Width / 2.0f * info.Scale, -image.Picture.Height / 2.0f * info.Scale);
+                    PointF p1 = new PointF(+image.Picture.Width / 2.0f * info.Scale, -image.Picture.Height / 2.0f * info.Scale);
+                    PointF p2 = new PointF(-image.Picture.Width / 2.0f * info.Scale, +image.Picture.Height / 2.0f * info.Scale);
 
                     float cos = (float)Math.Cos(info.Angle / 180.0 * Math.PI);
                     float sin = (float)Math.Sin(info.Angle / 180.0 * Math.PI);
 
-                    g.DrawImage(image, new PointF[]
+                    g.DrawImage(image.Picture, new PointF[]
                     {
                         new PointF(p0.X * cos - p0.Y * sin + info.X, p0.X * sin + p0.Y * cos + info.Y),
                         new PointF(p1.X * cos - p1.Y * sin + info.X, p1.X * sin + p1.Y * cos + info.Y),

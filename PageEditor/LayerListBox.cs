@@ -88,9 +88,6 @@ namespace PageEditor
         // Itemの描画
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            // 何してるんだろうね？
-            base.OnDrawItem(e);
-
             // 背景色
             e.DrawBackground();
 
@@ -151,12 +148,12 @@ namespace PageEditor
         /// <param name="e"></param>
         private static void DrawLayerImage(LayerImage layer, DrawItemEventArgs e)
         {
-            Image thumbImage = PictureControl.GetThumbImage(layer.FileName);
+            PictureControl.PictureInfo thumbImage = MainForm.GetInstance().Pictures.Load(layer.FileName);
 
             Rectangle box = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 20) / 2, 18, 18);
             e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box);
             if (thumbImage != null)
-                e.Graphics.DrawImage(thumbImage, box);
+                e.Graphics.DrawImage(thumbImage.ThumbImage, box);
             e.Graphics.DrawRectangle(Pens.White, box);
         }
 
@@ -189,9 +186,9 @@ namespace PageEditor
             ImageItem info = layer.CurrentImage;
             if (info != null)
             {
-                Image thumbImage = PictureControl.GetThumbImage(info.FileName);
+                PictureControl.PictureInfo thumbImage = MainForm.GetInstance().Pictures.Load(info.FileName);
                 if (thumbImage != null)
-                    e.Graphics.DrawImage(thumbImage, box);
+                    e.Graphics.DrawImage(thumbImage.ThumbImage, box);
             }
             e.Graphics.DrawRectangle(Pens.White, box);
         }

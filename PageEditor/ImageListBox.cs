@@ -68,9 +68,6 @@ namespace PageEditor
         // Itemの描画
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            // 何してるんだろうね？
-            base.OnDrawItem(e);
-
             // 背景色
             e.DrawBackground();
 
@@ -93,9 +90,9 @@ namespace PageEditor
 
                 if (item != null)
                 {
-                    Image image = PictureControl.Load(item.FileName);
-                    if (image != null)
-                        e.Graphics.DrawImage(image, new Rectangle(e.Bounds.Left + 3, e.Bounds.Top + 3, e.Bounds.Width - 4, e.Bounds.Height - 4));
+                    PictureControl.PictureInfo pictureInfo = MainForm.GetInstance().Pictures.Load(item.FileName);
+                    if (pictureInfo != null)
+                        e.Graphics.DrawImage(pictureInfo.Picture, new Rectangle(e.Bounds.Left + 3, e.Bounds.Top + 3, e.Bounds.Width - 4, e.Bounds.Height - 4));
                 }
             }
         }
@@ -249,7 +246,7 @@ namespace PageEditor
             string relative = MainForm.GetInstance().GetRelativePath(ofd.FileName);
 
             // 画像サイズを取得
-            Image image = PictureControl.Load(relative);
+            PictureControl.PictureInfo image = MainForm.GetInstance().Pictures.Load(relative);
 
             // 失敗
             if (image == null)
@@ -259,7 +256,7 @@ namespace PageEditor
             }
 
             ImageItem item = new ImageItem();
-            item.SetZoom(relative, MainForm.GetInstance().Document.Width, MainForm.GetInstance().Document.Height, image);
+            item.SetZoom(relative, MainForm.GetInstance().Document.Width, MainForm.GetInstance().Document.Height, image.Picture);
 
             using (new EventLocker())
             {

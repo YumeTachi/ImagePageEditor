@@ -23,7 +23,7 @@ namespace PageEditor
         /// MainFileが c:\main.jlw だとすると、
         /// DataDirectory は c:\main\ になる。
         /// </summary>
-        public string DataDirectory
+        internal string DataDirectory
         { 
             get
             {
@@ -36,12 +36,18 @@ namespace PageEditor
         /// <summary>
         /// メインファイル
         /// </summary>
-        private string MainFile { get; set; } 
+        private string MainFile { get; set; }
 
         /// <summary>
         /// ドキュメント本体
         /// </summary>
-        public Document Document { get; set; }
+        internal Document Document { get; set; }
+
+        /// <summary>
+        /// PictureControl
+        /// </summary>
+        internal PictureControl Pictures { get; set; }
+
 
 
         Image image = null;
@@ -51,11 +57,11 @@ namespace PageEditor
 
         private MainForm()
         {
+            Console.WriteLine("MainForm Initialize start");
+
             InitializeComponent();
 
-            // ドキュメントの生成
-            Document = CreateNewDocument();
-            image = new Bitmap(Document.Width, Document.Height);
+            Pictures = new PictureControl();
 
             sheetListBox.OnSheetAdded += SheetListBox_OnSheetAdded;
             sheetListBox.OnSheetRenamed += SheetListBox_OnSheetRenamed;
@@ -68,8 +74,20 @@ namespace PageEditor
             imageListListBox.OnImageAdded += ImageListListBox_OnImageAdded;
             imageListListBox.OnImageDeleted += ImageListListBox_OnImageDeleted;
 
+
+            // ドキュメントの生成
+            Document = CreateNewDocument();
+            image = new Bitmap(Document.Width, Document.Height);
+
             // メインキャンバスの設定
 
+
+            Console.WriteLine("MainForm Initialize finish");
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            Console.WriteLine("MainForm Load start");
 
             // ListBoxの更新
             sheetListBox.SetSheets(Document.Sheets.ToArray(), Document.CurrentSheet);
@@ -78,6 +96,8 @@ namespace PageEditor
             // 描画更新を明示的に呼び出す。
             picturePanelSizeChanged(null, null);
             ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
+
+            Console.WriteLine("MainForm Load end");
         }
 
         /// <summary>
@@ -161,7 +181,7 @@ namespace PageEditor
                             System.IO.File.WriteAllBytes(fullPath, data);
 
                             // PictureControlに追加しておく
-                            PictureControl.Add(fullPath, image);
+                            Pictures.Add(fullPath, image);
 
                             // ImageList選択中の場合はそちらに張り付け
                             if (Document.CurrentSheet.CurrentLayer is LayerImageList)

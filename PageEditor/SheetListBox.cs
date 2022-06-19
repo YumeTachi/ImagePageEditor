@@ -89,10 +89,6 @@ namespace PageEditor
         // Itemの描画
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            // 何してるんだろうね？
-            base.OnDrawItem(e);
-
-
             // 背景色
             e.DrawBackground();
 
