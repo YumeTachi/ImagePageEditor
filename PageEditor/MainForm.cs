@@ -153,6 +153,33 @@ namespace PageEditor
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public string GetRelativePathWithCopy(string fileName)
+        {
+            // データディレクトリ未設定
+            if (DataDirectory == null)
+                return null;
+
+            // データディレクトリ以下のファイルの場合
+            if (fileName.StartsWith(DataDirectory))
+                return fileName.Substring(DataDirectory.Length);
+
+            // データディレクトリ以下にコピーする。
+            
+            // 行き先ファイル名の決定
+            string toFileNameFull = GetSaveFileName(DataDirectory + System.IO.Path.GetFileName(fileName));
+
+            // コピー
+            System.IO.File.Copy(fileName, toFileNameFull);
+
+            // 相対パスを返す
+            return toFileNameFull.Substring(DataDirectory.Length);
+        }
+
         //
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {

@@ -14,7 +14,7 @@ namespace PageEditor
         public class OnImageAddedEventArgs : EventArgs
         {
             public int Index = -1;
-            public ImageItem AddedImage = null;
+            public List<ImageItem> AddedImages = null;
         }
 
         [Browsable(true)]
@@ -236,30 +236,39 @@ namespace PageEditor
             // ダイアログボックスを閉じる前に現在のディレクトリを復元するようにする
             ofd.RestoreDirectory = true;
 
+            // 複数選択許可
+            ofd.Multiselect = true;
+
             // ダイアログを表示する
             if (ofd.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
 
-            // 選択されたファイルを設定
-            string relative = MainForm.GetInstance().GetRelativePath(ofd.FileName);
-
-            // 画像サイズを取得
-            PictureControl.PictureInfo image = MainForm.GetInstance().Pictures.Load(relative);
-
-            // 失敗
-            if (image == null)
+            List<ImageItem> items = new List<ImageItem>();
+            foreach (string fileName in ofd.FileNames)
             {
-                MessageBox.Show("画像ファイルを開けませんでした。", "メッセージ", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                // 選択されたファイルを設定
+                string relative = MainForm.GetInstance().GetRelativePathWithCopy(fileName);
+
+                // 画像サイズを取得
+                PictureControl.PictureInfo image = MainForm.GetInstance().Pictures.Load(relative);
+
+                // 失敗
+                if (image == null)
+                {
+                    MessageBox.Show("画像ファイルを開けませんでした。", "メッセージ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                ImageItem item = new ImageItem();
+                item.SetZoom(relative, MainForm.GetInstance().Document.Width, MainForm.GetInstance().Document.Height, image.Picture);
+
+                // 追加本体
+                items.Add(item);
             }
 
-            ImageItem item = new ImageItem();
-            item.SetZoom(relative, MainForm.GetInstance().Document.Width, MainForm.GetInstance().Document.Height, image.Picture);
-
-            // 追加本体
-            Add(item);
+            AddRange(items);
         }
 
         /// <summary>
@@ -274,10 +283,28 @@ namespace PageEditor
             }
 
             // 追加イベントを先に発行
-            OnImageAdded(this, new OnImageAddedEventArgs() { Index = Items.Count - 1, AddedImage = item });
+            OnImageAdded(this, new OnImageAddedEventArgs() { Index = Items.Count - 1, AddedImages = new List<ImageItem>() { item } });
 
             // 選択シート変更
             SelectedItem = item;
+        }
+
+        /// <summary>
+        /// 追加
+        /// </summary>
+        /// <param name="item"></param>
+        public void AddRange(List<ImageItem> items)
+        {
+            using (new EventLocker())
+            {
+                Items.AddRange(items.ToArray());
+            }
+
+            // 追加イベントを先に発行
+            OnImageAdded(this, new OnImageAddedEventArgs() { Index = Items.Count - 1, AddedImages = items });
+
+            // 選択シート変更
+            SelectedItem = items[items.Count - 1];
         }
 
         private void OnDelete_Click(object sender, EventArgs e)

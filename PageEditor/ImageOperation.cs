@@ -307,7 +307,7 @@ namespace PageEditor
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 // 選択されたファイルを設定
-                string relative = MainForm.GetInstance().GetRelativePath(ofd.FileName);
+                string relative = MainForm.GetInstance().GetRelativePathWithCopy(ofd.FileName);
 
                 // 画像サイズを取得
                 PictureControl.PictureInfo image = MainForm.GetInstance().Pictures.Load(relative);
