@@ -84,7 +84,21 @@ namespace PageEditor
                     {
                         LayerImage layerImage = layer as LayerImage;
 
+                        MouseControl.Object = layer;
                         MouseControl.ObjectPoint = new Point(layerImage.X, layerImage.Y);
+                    }
+                    break;
+
+                case "LayerImageList":
+
+                    {
+                        LayerImageList layerImageList = layer as LayerImageList;
+
+                        if (layerImageList.CurrentImage != ImageItem.Empty)
+                        {
+                            MouseControl.Object = layerImageList.CurrentImage;
+                            MouseControl.ObjectPoint = new Point(layerImageList.CurrentImage.X, layerImageList.CurrentImage.Y);
+                        }
                     }
                     break;
             }
@@ -112,16 +126,19 @@ namespace PageEditor
 
             if (MouseControl.Status == MouseControlInfo.ControlStatus.Move)
             {
-                switch (layer.GetType().Name)
+                if (MouseControl.Object == null)
+                    return ThumbnailUpdateType.NONE;
+
+                switch (MouseControl.Object.GetType().Name)
                 {
-                    case "LayerSpeechBaloon":
+                    case "SpeechBaloon":
 
-                        if (e.Button == MouseButtons.Left && MouseControl.Object != null)
+                        if (e.Button == MouseButtons.Left)
                         {
-                            SpeechBaloon speechBaloon = MouseControl.Object as SpeechBaloon;
+                            SpeechBaloon item = MouseControl.Object as SpeechBaloon;
 
-                            speechBaloon.X = MouseControl.ObjectPoint.X + (e.Location.X - MouseControl.DownPoint.X);
-                            speechBaloon.Y = MouseControl.ObjectPoint.Y + (e.Location.Y - MouseControl.DownPoint.Y);
+                            item.X = MouseControl.ObjectPoint.X + (e.Location.X - MouseControl.DownPoint.X);
+                            item.Y = MouseControl.ObjectPoint.Y + (e.Location.Y - MouseControl.DownPoint.Y);
 
                             return ThumbnailUpdateType.LATER;
                         }
@@ -131,10 +148,23 @@ namespace PageEditor
 
                         if (e.Button == MouseButtons.Left)
                         {
-                            LayerImage layerImage = layer as LayerImage;
+                            LayerImage item = MouseControl.Object as LayerImage;
 
-                            layerImage.X = MouseControl.ObjectPoint.X + (e.Location.X - MouseControl.DownPoint.X);
-                            layerImage.Y = MouseControl.ObjectPoint.Y + (e.Location.Y - MouseControl.DownPoint.Y);
+                            item.X = MouseControl.ObjectPoint.X + (e.Location.X - MouseControl.DownPoint.X);
+                            item.Y = MouseControl.ObjectPoint.Y + (e.Location.Y - MouseControl.DownPoint.Y);
+
+                            return ThumbnailUpdateType.LATER;
+                        }
+                        break;
+
+                    case "ImageItem":
+
+                        if (e.Button == MouseButtons.Left)
+                        {
+                            ImageItem item = MouseControl.Object as ImageItem;
+
+                            item.X = MouseControl.ObjectPoint.X + (e.Location.X - MouseControl.DownPoint.X);
+                            item.Y = MouseControl.ObjectPoint.Y + (e.Location.Y - MouseControl.DownPoint.Y);
 
                             return ThumbnailUpdateType.LATER;
                         }
