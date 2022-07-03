@@ -128,86 +128,13 @@ namespace PageEditor
                 Rectangle boxS = new Rectangle(60, e.Bounds.Top, 100, e.Bounds.Height - 2);
                 e.Graphics.DrawString(layer.LayerType(), e.Font, Brushes.White, boxS, new StringFormat(StringFormatFlags.NoWrap) { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
 
-                switch (layer.GetType().Name)
-                {
-                    case "LayerSpeechBaloon":
-                        DrawLayerSpeechBaloon(layer as LayerSpeechBaloon, e);
-                        break;
-                    case "LayerFill":
-                        DrawLayerFill(layer as LayerFill, e);
-                        break;
-                    case "LayerImage":
-                        DrawLayerImage(layer as LayerImage, e);
-                        break;
-                    case "LayerImageList":
-                        DrawLayerImageList(layer as LayerImageList, e);
-                        break;
-                }
+                LayerListDrawEventArgs arg = new LayerListDrawEventArgs();
+                arg.Graphics = e.Graphics;
+                arg.Bounds = e.Bounds;
+                arg.ThumbsBounds = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 20) / 2, 18, 18);
+
+                layer.DrawLayerListItem(arg);
             }
-        }
-
-        /// <summary>
-        /// 塗りつぶしレイヤーを描画します。
-        /// </summary>
-        private static void DrawLayerFill(LayerFill layer, DrawItemEventArgs e)
-        {
-            // 塗りつぶしの枠だけ。
-            Rectangle box = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 18 - 2) / 2, 18, 18);
-            e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box);
-            e.Graphics.FillRectangle(new SolidBrush(layer.BackColor), box);
-            e.Graphics.DrawRectangle(Pens.White, box);
-        }
-
-        /// <summary>
-        /// イメージレイヤーを描画します。
-        /// </summary>
-        /// <param name="layer"></param>
-        /// <param name="e"></param>
-        private static void DrawLayerImage(LayerImage layer, DrawItemEventArgs e)
-        {
-            PictureControl.PictureInfo thumbImage = MainForm.GetInstance().Pictures.Load(layer.FileName);
-
-            Rectangle box = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 20) / 2, 18, 18);
-            e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box);
-            if (thumbImage != null)
-                e.Graphics.DrawImage(thumbImage.ThumbImage, box);
-            e.Graphics.DrawRectangle(Pens.White, box);
-        }
-
-        /// <summary>
-        /// 吹き出しレイヤーを描画します。
-        /// </summary>
-        /// <param name="layer"></param>
-        /// <param name="e"></param>
-        private static void DrawLayerSpeechBaloon(LayerSpeechBaloon layer, DrawItemEventArgs e)
-        {
-            // 塗りつぶしの枠だけ。
-            Rectangle box = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 20) / 2, 18, 18);
-            e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box);
-            e.Graphics.DrawRectangle(Pens.White, box);
-
-            Rectangle baloon = new Rectangle(box.Left + 3, box.Top + 2, 12, 14);
-            e.Graphics.FillEllipse(Brushes.White, baloon);
-            e.Graphics.DrawEllipse(Pens.DarkGray, baloon);
-        }
-
-        /// <summary>
-        /// イメージリストレイヤーを描画します。
-        /// </summary>
-        /// <param name="layer"></param>
-        /// <param name="e"></param>
-        private static void DrawLayerImageList(LayerImageList layer, DrawItemEventArgs e)
-        {
-            Rectangle box = new Rectangle(35, e.Bounds.Top + (e.Bounds.Height - 20) / 2, 18, 18);
-            e.Graphics.FillRectangle(ImageDraw.GetClearBrush(), box);
-            ImageItem info = layer.CurrentImage;
-            if (info != null)
-            {
-                PictureControl.PictureInfo thumbImage = MainForm.GetInstance().Pictures.Load(info.FileName);
-                if (thumbImage != null)
-                    e.Graphics.DrawImage(thumbImage.ThumbImage, box);
-            }
-            e.Graphics.DrawRectangle(Pens.White, box);
         }
 
         /// <summary>

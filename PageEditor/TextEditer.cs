@@ -12,12 +12,32 @@ namespace PageEditor
 {
     public partial class TextEditer : Form
     {
+        // このウィンドウは複数開かせない。
+        static TextEditer m_TextEditor = null;
+        static Point m_ViewPos = Point.Empty;
+
         SpeechBaloon m_SpeechBaloon = null;
 
         public TextEditer(string title)
         {
+            // 既に存在する場合
+            if (m_TextEditor != null)
+            {
+                m_TextEditor.Close();
+                m_TextEditor.Dispose();
+                m_TextEditor = null;
+            }
+
             InitializeComponent();
             this.Text = title;
+
+            if (m_ViewPos != Point.Empty)
+            {
+                StartPosition = FormStartPosition.Manual;
+                Location = m_ViewPos;
+            }
+
+            m_TextEditor = this;
         }
 
         public void Set(SpeechBaloon speechBaloon = null)
@@ -82,7 +102,6 @@ namespace PageEditor
             return speechBaloon;
         }
 
-
         private void ColorSelect(object sender, EventArgs e)
         {
             PictureBox pictureBox = sender as PictureBox;
@@ -94,7 +113,7 @@ namespace PageEditor
             cd.Color = pictureBox.BackColor;
 
             // よく使う色？
-            cd.CustomColors = new int[] { 0x2E2EBF, 0xE57A3C };
+            cd.CustomColors = General.CustomColors;
 
             //ダイアログを表示する
             if (cd.ShowDialog() == DialogResult.OK)
@@ -124,8 +143,8 @@ namespace PageEditor
         {
             if (m_SpeechBaloon != null)
             {
-                if (shapeKind1.Checked) m_SpeechBaloon.Kind = SpeechBaloon.BaloonKind.Box;
-                if (shapeKind2.Checked) m_SpeechBaloon.Kind = SpeechBaloon.BaloonKind.RoundedCorner1;
+                if (shapeKind1.Checked) m_SpeechBaloon.Kind = PageEditor.SpeechBaloon.BaloonKind.Box;
+                if (shapeKind2.Checked) m_SpeechBaloon.Kind = PageEditor.SpeechBaloon.BaloonKind.RoundedCorner1;
                 timer1.Start();
             }
         }
@@ -134,9 +153,9 @@ namespace PageEditor
         {
             if (m_SpeechBaloon != null)
             {
-                if (sizeKind0.Checked) m_SpeechBaloon.FontSize = SpeechBaloon.FontSizeKind.Small;
-                if (sizeKind1.Checked) m_SpeechBaloon.FontSize = SpeechBaloon.FontSizeKind.Middle;
-                if (sizeKind2.Checked) m_SpeechBaloon.FontSize = SpeechBaloon.FontSizeKind.Large;
+                if (sizeKind0.Checked) m_SpeechBaloon.FontSize = PageEditor.SpeechBaloon.FontSizeKind.Small;
+                if (sizeKind1.Checked) m_SpeechBaloon.FontSize = PageEditor.SpeechBaloon.FontSizeKind.Middle;
+                if (sizeKind2.Checked) m_SpeechBaloon.FontSize = PageEditor.SpeechBaloon.FontSizeKind.Large;
                 timer1.Start();
             }
         }
@@ -145,6 +164,9 @@ namespace PageEditor
         {
             // タイマー停止
             timer1.Stop();
+
+            // 最終位置記憶
+            m_ViewPos = Location;
         }
 
         private void timer1_Tick(object sender, EventArgs e)

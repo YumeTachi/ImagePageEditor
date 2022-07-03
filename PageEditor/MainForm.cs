@@ -9,6 +9,9 @@ namespace PageEditor
 {
     public partial class MainForm : Form
     {
+        static readonly float[] ZoomRates = { 2.0f, 1.5f, 1.0f, 0.6667f, 0.5f, 0.3333f, 0.25f, 0.125f, 0.0625f, 0.03125f };
+
+
         private static MainForm m_Instance = null;
         public static MainForm GetInstance()
         {
@@ -52,7 +55,13 @@ namespace PageEditor
 
         Image image = null;
 
-        float pictureRate = 1.0f;
+        float pictureRate 
+        {
+            get => ZoomRates[pictureRateIndex];
+        }
+
+        int pictureRateIndex = 3;
+        Point picturePos = Point.Empty;
 
 
         private MainForm()
@@ -60,6 +69,8 @@ namespace PageEditor
             Console.WriteLine("MainForm Initialize start");
 
             InitializeComponent();
+            pictureBox1.Dock = DockStyle.Fill;
+            pictureBox1.MouseWheel += PictureBox1_MouseWheel;
 
             Pictures = new PictureControl();
 
@@ -76,13 +87,8 @@ namespace PageEditor
             imageListListBox.OnImageAdded += ImageListListBox_OnImageAdded;
             imageListListBox.OnImageDeleted += ImageListListBox_OnImageDeleted;
 
-
             // ドキュメントの生成
             Document = CreateNewDocument();
-            image = new Bitmap(Document.Width, Document.Height);
-
-            // メインキャンバスの設定
-
 
             Console.WriteLine("MainForm Initialize finish");
         }
@@ -96,8 +102,9 @@ namespace PageEditor
             layerListBox.SetLayers(Document.CurrentSheet.Layers.ToArray(), Document.CurrentSheet.CurrentLayer);
 
             // 描画更新を明示的に呼び出す。
-            picturePanelSizeChanged(null, null);
+            image = new Bitmap(Document.Width, Document.Height);
             ImageUpdate(ImageOperation.ThumbnailUpdateType.IMMEDIATELY);
+            picturePanelSizeChanged(null, null);
 
             Console.WriteLine("MainForm Load end");
         }
@@ -237,7 +244,7 @@ namespace PageEditor
                                 // (4)LayerListBoxからIndexChangedイベントの発行→Document/描画に反映
 
                                 LayerImage layerImage = new LayerImage();
-                                layerImage.SetZoom(GetRelativePath(fullPath), Document.Width, Document.Height, image);
+                                layerImage.ImageItem.SetZoom(GetRelativePath(fullPath), Document.Width, Document.Height, image);
 
                                 layerListBox.Insert(layerImage);
                             }
@@ -271,6 +278,25 @@ namespace PageEditor
         // PictureBox処理系
         #region
 
+        private void PictureBox1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (e.Delta == 0)
+                return;
+
+            if (e.Delta < 0)
+            {
+                if (pictureRateIndex < ZoomRates.Length - 1)
+                    pictureRateIndex++;
+            }
+            else
+            {
+                if (pictureRateIndex > 0)
+                    pictureRateIndex--;
+            }
+
+            picturePanelSizeChanged(null, null);
+        }
+
         /// <summary>
         /// 画像イメージのリサイズ
         /// </summary>
@@ -278,27 +304,13 @@ namespace PageEditor
         /// <param name="e"></param>
         private void picturePanelSizeChanged(object sender, EventArgs e)
         {
-            // ドキュメントが開かれていない（未初期化）の場合は何もしない
-            if (Document == null)
+            // キャンバス/ドキュメントの準備ができていない場合
+            if (image == null || Document == null)
                 return;
 
             // --------------------------------------------------------------------------
             // メインキャンバスの再構築
-            Size maxSize = new Size(splitContainer3.Panel1.Width, splitContainer3.Panel1.Height);
 
-            if (maxSize.Width < 10 || maxSize.Height < 10)
-                return;
-
-            pictureRate = Math.Min((float)maxSize.Width / Document.Width,
-                                   (float)maxSize.Height / Document.Height);
-
-            if (pictureRate <= 0.1f)
-                return;
-
-            pictureBox1.Width = (int)(Document.Width * pictureRate);
-            pictureBox1.Height = (int)(Document.Height * pictureRate);
-
-            // Imageがない、あるいはサイズが違えば生成
             if (pictureBox1.Image == null
              || pictureBox1.Image.Width != pictureBox1.Width
              || pictureBox1.Image.Height != pictureBox1.Height)
@@ -312,13 +324,14 @@ namespace PageEditor
                 pictureBox1.Image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             }
 
-            // 位置変更
-            Point position = new Point((maxSize.Width - pictureBox1.Width) / 2, (maxSize.Height - pictureBox1.Height) / 2);
-            pictureBox1.Location = position;
+            if (pictureBox1.Height < 10 || pictureBox1.Height < 10)
+                return;
 
-            // --------------------------------------------------------------------------
-            // 描画更新
-            ImageUpdate(ImageOperation.ThumbnailUpdateType.NONE);
+            // 位置変更
+            picturePos = new Point((pictureBox1.Width - (int)(Document.Width * pictureRate)) / 2, (pictureBox1.Height - (int)(Document.Height * pictureRate)) / 2);
+
+            // メインキャンバスに転送
+            TranseferImage();
         }
 
         /// <summary>
@@ -327,8 +340,8 @@ namespace PageEditor
         /// <param name="sheet"></param>
         internal void ImageUpdate(ImageOperation.ThumbnailUpdateType thumbnailUpdateType)
         {
-            // メインキャンバスの準備ができていない場合
-            if (pictureBox1.Image == null)
+            // キャンバス/ドキュメントの準備ができていない場合
+            if (image == null || Document == null)
                 return;
 
             // 描画メイン
@@ -337,15 +350,6 @@ namespace PageEditor
             {
                 Sheet sheet = Document.CurrentSheet;
                 ImageDraw.Draw(image, sheet.Layers);
-            }
-
-            // メインキャンバスに転送
-            using (Graphics g = Graphics.FromImage(pictureBox1.Image))
-            {
-                g.FillRectangle(ImageDraw.GetClearBrush(), new Rectangle(0, 0, pictureBox1.Image.Width, pictureBox1.Image.Height));
-
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                g.DrawImage(image, new Rectangle(0, 0, pictureBox1.Width, pictureBox1.Height));
             }
 
             // サムネイル更新
@@ -365,10 +369,36 @@ namespace PageEditor
                 case ImageOperation.ThumbnailUpdateType.NONE:
                     // 更新なし
                     break;
-            }    
+            }
 
-            // 描画更新
-            pictureBox1.Refresh();
+            // メインキャンバスに転送
+            TranseferImage();
+        }
+
+        /// <summary>
+        /// メインキャンバスに転送
+        /// </summary>
+        private void TranseferImage()
+        {
+            // PictureBoxの準備ができている場合
+            if (pictureBox1.Image != null && pictureBox1.Image != null)
+            {
+                // メインキャンバスに転送
+                using (Graphics g = Graphics.FromImage(pictureBox1.Image))
+                {
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                    g.Clear(Color.FromArgb(45, 45, 45));
+
+                    Rectangle rectangle = new Rectangle(picturePos.X, picturePos.Y, (int)(Document.Width * pictureRate), (int)(Document.Height * pictureRate));
+
+                    g.FillRectangle(ImageDraw.GetClearBrush(), rectangle);
+                    g.DrawImage(image, rectangle);
+                }
+
+                // 描画更新
+                pictureBox1.Refresh();
+            }
         }
 
         /// <summary>
@@ -378,7 +408,7 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseDown(new JLMouseEventArgs(e, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
+            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseDown(new JLMouseEventArgs(e, picturePos, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
             if (updateType != ImageOperation.ThumbnailUpdateType.NONE)
                 ImageUpdate(updateType);
         }
@@ -390,7 +420,7 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseMove(new JLMouseEventArgs(e, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
+            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseMove(new JLMouseEventArgs(e, picturePos, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
             if (updateType != ImageOperation.ThumbnailUpdateType.NONE)
                 ImageUpdate(updateType);
         }
@@ -402,7 +432,7 @@ namespace PageEditor
         /// <param name="e"></param>
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseUp(new JLMouseEventArgs(e, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
+            ImageOperation.ThumbnailUpdateType updateType = ImageOperation.MouseUp(new JLMouseEventArgs(e, picturePos, pictureRate), Document.CurrentSheet.CurrentLayer, Document, this);
             if (updateType != ImageOperation.ThumbnailUpdateType.NONE)
                 ImageUpdate(updateType);
         }
@@ -682,13 +712,13 @@ namespace PageEditor
             switch (layerListBox.SelectedItem.GetType().Name)
             {
                 case "LayerFill":
-                    helpLabel.Text = "tips:画面上左クリックで色選択ウィンドウが表示されます。";
+                    helpLabel.Text = "tips:画面上右クリックで色選択ウィンドウが表示されます。";
                     imageListListBox.ClearImages();
                     imageListListBox.Enabled = false;
                     break;
 
                 case "LayerImage":
-                    helpLabel.Text = "tips:画面上左クリックでファイル選択ウィンドウが表示されます。";
+                    helpLabel.Text = "tips:画面上右クリックでファイル選択ウィンドウが表示されます。";
                     imageListListBox.ClearImages();
                     imageListListBox.Enabled = false;
                     break;

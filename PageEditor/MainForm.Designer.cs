@@ -183,6 +183,7 @@ namespace PageEditor
             // 
             // sheetListBox
             // 
+            this.sheetListBox.AllowDrop = true;
             this.sheetListBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.sheetListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.sheetListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
@@ -198,6 +199,7 @@ namespace PageEditor
             // 
             // layerListBox
             // 
+            this.layerListBox.AllowDrop = true;
             this.layerListBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.layerListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layerListBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
@@ -224,7 +226,6 @@ namespace PageEditor
             // 
             this.splitContainer3.Panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(45)))), ((int)(((byte)(45)))));
             this.splitContainer3.Panel1.Controls.Add(this.pictureBox1);
-            this.splitContainer3.Panel1.SizeChanged += new System.EventHandler(this.picturePanelSizeChanged);
             // 
             // splitContainer3.Panel2
             // 
@@ -241,6 +242,7 @@ namespace PageEditor
             this.pictureBox1.Size = new System.Drawing.Size(640, 360);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.SizeChanged += new System.EventHandler(this.picturePanelSizeChanged);
             this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);

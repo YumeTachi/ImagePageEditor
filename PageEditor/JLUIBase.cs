@@ -76,14 +76,14 @@ public class JLMouseEventArgs
     /// </summary>
     /// <param name="arg"></param>
     /// <param name="rate"></param>
-    public JLMouseEventArgs(MouseEventArgs arg, float rate)
+    public JLMouseEventArgs(MouseEventArgs arg, Point picturePos, float rate)
     {
         System.Diagnostics.Debug.Assert(arg.X == arg.Location.X && arg.Y == arg.Location.Y);
 
         Button = arg.Button;
         Clicks = arg.Clicks;
         Delta = arg.Delta;
-        Location = new Point((int)Math.Round(arg.X / rate), (int)Math.Round(arg.Y / rate));
+        Location = new Point((int)Math.Round((arg.X - picturePos.X) / rate), (int)Math.Round((arg.Y - picturePos.Y) / rate));
         LocationRaw = arg.Location;
     }
 }
@@ -104,5 +104,42 @@ public class EventWrapper
             if (eventHandler != null)
                 eventHandler(sender, e);
         }
+    }
+}
+
+public static class General
+{
+    public static int[] CustomColors = new int[] { 0x2E2EBF, 0xE57A3C };
+}
+
+public class MouseControlInfo
+{
+    public enum ControlStatus
+    {
+        None,
+        Deferment,
+        Move
+    }
+
+    public ControlStatus Status;
+    public MouseButtons Button;
+    public Point DownPoint;
+    public Point DownPointRaw;
+    public Point ObjectPoint;
+    public object Tag;
+
+    public MouseControlInfo()
+    {
+        Status = ControlStatus.None;
+    }
+
+    public MouseControlInfo(MouseControlInfo arg)
+    {
+        Status = arg.Status;
+        Button = arg.Button;
+        DownPoint = arg.DownPoint;
+        DownPointRaw = arg.DownPointRaw;
+        ObjectPoint = arg.ObjectPoint;
+        Tag = arg.Tag;
     }
 }
